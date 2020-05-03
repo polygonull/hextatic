@@ -35,12 +35,13 @@ body {
 
 .changebox {
 	display: none;
+	line-height: 0;
 }
 
 #privacybox {
 	display: none;
-	margin-left: 5px;
-	margin-right: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 .centered-100 {
@@ -122,7 +123,7 @@ body {
 }
 
 .sound {
-	/* makes the inner path equal with the back button which is 33px */
+	/* makes the inner path equal with the back button which is about 33px */
 	height: 44px;
 }
 
