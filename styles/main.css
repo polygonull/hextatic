@@ -37,6 +37,12 @@ body {
 	display: none;
 }
 
+#privacybox {
+	display: none;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
 .centered-100 {
 	height: 100%;
     display: flex;
@@ -71,11 +77,28 @@ body {
 	cursor: pointer;
 }
 
-.playtext, .errortext {
+.playtext, .errortext, .privacytext, .privacytext-link {
 	font-family: Stalinist;
 	font-size: 20px;
 	color: black;
 	text-align: center;
+}
+
+.errortext, .privacytext {
+	font-size: 16px;
+}
+
+.privacytext-link {
+	font-size: 12px;
+	text-decoration: underline;
+	cursor: pointer;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0;
+	right: 0;
+	text-align: center;
+	bottom: 5px;
 }
 
 .errortext {
@@ -107,7 +130,7 @@ body {
 	display: none;
 }
 
-#select-back, #game-back {
+#privacy-back, #select-back, #game-back {
 	display: none;
 }
 

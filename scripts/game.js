@@ -331,6 +331,20 @@ function loadStageSelect() {
 
 }
 
+function loadPrivacy() {
+
+	jQuery("#privacy-back").off("click").on("click", function () {
+		previousSound = playSound.play(soundState, previousSound);
+		jQuery("#privacybox").hide();
+		jQuery("#privacy-back").hide();
+		loadStart();
+	});
+
+	jQuery("#privacybox").show();
+	jQuery("#privacy-back").show();
+
+}
+
 function loadStart() {
 
 	previousGameState = gameState;
@@ -358,6 +372,7 @@ function loadStart() {
 		previousSound = playSound.play(soundState, previousSound);
 		hextaticAnimationStop = true;
 		jQuery("#playbox").hide();
+		jQuery(".privacytext-link").hide();
 		loadStageSelect();
 	});
 
@@ -373,7 +388,16 @@ function loadStart() {
 		jQuery(".sound").toggle();
 	});
 
+	jQuery(".privacytext-link").off("click").on("click", function () {
+		previousSound = stateChangeSound.play(soundState, previousSound);
+		hextaticAnimationStop = true;
+		jQuery("#playbox").hide();
+		jQuery(".privacytext-link").hide();
+		loadPrivacy();
+	});
+
 	jQuery("#playbox").fadeIn(500);
+	jQuery(".privacytext-link").fadeIn(500);
 
 }
 
