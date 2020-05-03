@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>HEXTATIC</title>
+		<title>Hextatic</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="stages/stage0.js"></script>
@@ -36,11 +36,15 @@
 			<div id="optionsbox">
 				<div class="separated">
 					<div class="other-options">
-						<svg class="back" id="select-back" fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+						<svg id="privacy-back" class="back colorful" fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 							<path d="M12 8V4l8 8-8 8v-4H4V8z"/>
 							<path d="M0 0h24v24H0z" fill="none"/>
 						</svg>
-						<svg class="back" id="game-back" fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+						<svg id="select-back" class="back" fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 8V4l8 8-8 8v-4H4V8z"/>
+							<path d="M0 0h24v24H0z" fill="none"/>
+						</svg>
+						<svg id="game-back" class="back" fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 							<path d="M12 8V4l8 8-8 8v-4H4V8z"/>
 							<path d="M0 0h24v24H0z" fill="none"/>
 						</svg>
@@ -56,6 +60,9 @@
 						</svg>
 					</div>
 				</div>
+			</div>
+			<div id="privacybox">
+				<iframe src="privacy.html" frameborder="0" width="100%"></iframe> 
 			</div>
 			<div class="centered">
 				<div id="playbox">
@@ -200,6 +207,9 @@
 						</svg>
 					</div>
 				</div>
+			</div>
+			<div class="privacytext-link">
+				Privacy policy
 			</div>
 		</div>
 	</body>
