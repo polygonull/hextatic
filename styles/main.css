@@ -17,7 +17,6 @@ body {
 #errorbox {
 	height: 100%;
 	display: none;
-	padding: 10px;
 }
 
 #mainbox {
@@ -25,8 +24,8 @@ body {
 }
 
 #privacybox {
+	height: 50%;
 	display: none;
-	height: 100%;
 	padding-left: 5px;
 	padding-right: 5px;
 }
@@ -50,7 +49,7 @@ body {
     top: 50%;
     left: 50%;
     margin-right: -50%;
-    transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
 }
 
 #playbox {
@@ -92,6 +91,11 @@ body {
 	left: 0;
 	right: 0;
 	bottom: 8px;
+}
+
+.privacy-header {
+	margin-top: 0px;
+	padding-top: 20px;
 }
 
 .errortext {
@@ -224,17 +228,4 @@ body {
 		fill-opacity: 0;
 	}
 }
-
-.rotate360 {
-	animation: spin 0.5s infinite;
-}
-
-@keyframes spin {
-	from {
-	  transform: rotate(0deg);
-	}
-	to {
-	  transform: rotate(360deg);
-	}
-  }
 
