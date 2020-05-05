@@ -333,8 +333,11 @@ function loadStageSelect() {
 
 function loadPrivacy() {
 
+	d3.selectAll(".colorful").transition().duration(500).style("fill", gameColors("blocked", 0));
+
 	jQuery("#privacy-back").off("click").on("click", function () {
 		previousSound = playSound.play(soundState, previousSound);
+		hextaticAnimationStop = true;
 		jQuery("#privacybox").hide();
 		jQuery("#privacy-back").hide();
 		loadStart();
