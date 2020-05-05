@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/hextatic.png" width="200px"><br>
+  <img src="images/hextatic_name.svg" width="200px"><br>
 </p>
 
 <p align="center">
