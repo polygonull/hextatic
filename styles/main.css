@@ -23,6 +23,11 @@ body {
 	height: 100%;	
 }
 
+#optionsbox {
+	z-index: 1;
+	position: relative;
+}
+
 #privacybox {
 	height: 50%;
 	display: none;
