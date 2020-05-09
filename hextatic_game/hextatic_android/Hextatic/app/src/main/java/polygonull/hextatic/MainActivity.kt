@@ -3,12 +3,11 @@ package polygonull.hextatic
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.webkit.WebView
-
+import android.webkit.WebViewClient
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -17,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
         webView = findViewById(R.id.activity_webview)
 
+        webView.webViewClient = WebViewClient()
         webView.setOnLongClickListener({true})
         webView.setLongClickable(false)
         webView.setHapticFeedbackEnabled(false)
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         webSettings.setDomStorageEnabled(true)
 
 
-        webView.loadUrl("file:///android_asset/hextatic/index.html")
+        webView.loadUrl("file:///android_asset/index.html")
     }
 
 }
