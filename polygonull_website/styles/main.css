@@ -25,11 +25,6 @@
     font-size: 20px;
 }
 
-.null-github {
-    border-width: 0px;
-    border-radius: 50%;
-}
-
 #null-particles {
     z-index: -1;
     width: 100%;
@@ -57,14 +52,11 @@
     margin: 40px;
 }
 
-.null-privacy-link {
-    margin: 12px;
-    font-size: 12px;
-    padding: 8px;
-    line-height: 12px;
-}
-
 .null-privacy {
     font-size: 20px;
     padding: 10px;
+}
+
+#null-email-wrapper {
+    cursor: pointer;
 }
