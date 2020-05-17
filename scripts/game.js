@@ -29,7 +29,7 @@ jQuery(function () {
 	} else {
 
 		jQuery("#mainbox").hide();
-		jQuery("#errorbox").show();
+		jQuery("#errorbox-storage").show();
 
 	}
 
@@ -216,7 +216,7 @@ function loadGame(stageid, mapid) {
 			}
 		});
 
-	jQuery(".map-number").html(mapid).css("color", hextaticColors[stageid]);
+	jQuery("#map-number").html(hexstagesCodenames[stageid] + "-" + mapid).css("color", hextaticColors[stageid]);
 	jQuery(".refresh").css("fill", hextaticColors[stageid]);
 	jQuery(".forward").css("fill", hextaticColors[stageid]);
 	jQuery(".back").css("fill", hextaticColors[stageid]);
@@ -293,6 +293,7 @@ function loadStageSelect() {
 		jQuery("#changebox-in-between").show();
 	}
 
+	d3.select("#stage-number").html(hexstagesCodenames[stageid]).transition().duration(500).style("color", hextaticColors[stageid]);
 	d3.selectAll(".done").transition().duration(500).style("background-color", gameColors("done", stageid));
 	d3.selectAll(".tobe-done").transition().duration(500).style("background-color", hextaticColors[stageid]);
 	d3.selectAll(".not-done").transition().duration(500).style("background-color", gameColors("blocked", stageid));
@@ -333,7 +334,7 @@ function loadStageSelect() {
 
 function loadPrivacy() {
 
-	d3.selectAll(".colorful").transition().duration(500).style("fill", gameColors("blocked", 0));
+	d3.selectAll(".colorful").transition().duration(0).style("fill", gameColors("blocked", 0));
 
 	jQuery("#privacy-back").off("click").on("click", function () {
 		previousSound = playSound.play(soundState, previousSound);
