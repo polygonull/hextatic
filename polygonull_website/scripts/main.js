@@ -5,13 +5,6 @@ var startAll = function () {
         this.removeAttribute("id");
     });
 
-    var adaptive_size = 30;
-    var viewportWidth = window.innerWidth;
-
-    if(viewportWidth < 1800) {
-        adaptive_size = (viewportWidth / 75) + 6;
-    }
-
     particlesJS("null-particles",
         {
             "particles": {
@@ -51,7 +44,7 @@ var startAll = function () {
                     }
                 },
                 "size": {
-                    "value": adaptive_size,
+                    "value": 15,
                     "random": true,
                     "anim": {
                         "enable": false,
