@@ -47,3 +47,7 @@ var hexstages = {
 	"stage5": hexstage5,
 	"stage6": hexstage6
 };
+
+var hexstagesCodenames = [
+	"R", "O", "Y", "G", "B", "I", "V"
+];

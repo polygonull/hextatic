@@ -3,6 +3,15 @@
 	src: url("../fonts/StalinistOne-Regular.ttf") format("truetype");
 }
 
+* {
+	font-family: Stalinist;
+	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+	-webkit-user-select: none;       
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
 html {
 	height: 100%;
 }
@@ -14,7 +23,7 @@ body {
 	background-color: white;
 }
 
-#errorbox {
+#errorbox-storage, #errorbox-height {
 	height: 100%;
 	display: none;
 }
@@ -76,8 +85,6 @@ body {
 }
 
 .errortext, .privacytext, .privacytext-link {
-	font-family: Stalinist;
-	font-size: 20px;
 	color: black;
 	text-align: center;
 }
@@ -113,9 +120,8 @@ body {
     justify-content: space-between;
 }
 
-.map-number {
-	font-family: Stalinist;
-	font-size: 30px;
+#map-number {
+	font-size: 22px;
 }
 
 .refresh, .back, .forward, .sound {
@@ -165,7 +171,6 @@ body {
 
 .numberbox {
 	font-size: 12px;
-    font-family: Stalinist;
     color: white;
 }
 
@@ -180,6 +185,7 @@ body {
 }
 
 #changebox-last {
+	float: left;
     margin-left: 5%;
 }
 
@@ -203,18 +209,16 @@ body {
 }
 
 .gamebox-options {
-	height: 50px;
-	margin-bottom: 15%;
-	margin-top: 10%;
 	text-align: center;
+	font-size: 20px;
 }
 
-* {
-	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
-	-webkit-user-select: none;       
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
+#gamebox-options-top {
+	margin-bottom: 10%;
+}
+
+#gamebox-options-bottom {
+	margin-top: 5%;
 }
 
 .pulsating {
@@ -235,3 +239,22 @@ body {
 	}
 }
 
+.selectbox-options {
+	margin-bottom: 15px;
+	text-align: center;
+	font-size: 20px;
+}
+
+#stage-number {
+	font-size: 22px;
+}
+
+@media (max-height: 449px) {
+	#mainbox {
+		display: none;
+	}
+
+	#errorbox-height {
+		display: block;
+	}
+}
