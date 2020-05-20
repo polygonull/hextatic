@@ -72,7 +72,7 @@ body {
 
 #playbutton-box {
 	text-align: center;
-	margin-right: 5%;
+	margin-right: 10%;
 }
 
 #playbutton {
@@ -84,26 +84,13 @@ body {
 	cursor: pointer;
 }
 
-.errortext, .privacytext, .privacytext-link {
+.errortext, .privacytext {
 	color: black;
 	text-align: center;
 }
 
 .errortext, .privacytext {
 	font-size: 16px;
-}
-
-.privacytext-link {
-	font-size: 10px;
-	text-decoration: underline;
-	cursor: pointer;
-	position: absolute;
-	margin-left: auto;
-	margin-right: auto;
-	left: 0px;
-	right: 0px;
-	bottom: 2px;
-	z-index: 1;
 }
 
 .privacy-header {
@@ -124,15 +111,20 @@ body {
 	font-size: 22px;
 }
 
-.refresh, .back, .forward, .sound {
+.refresh, .back, .forward, .sound, .privacy {
     cursor: pointer;
     height: 50px;
     width: 50px;
 }
 
+/* makes the inner path equal with the back button which is about 33px */
+
 .sound {
-	/* makes the inner path equal with the back button which is about 33px */
 	height: 44px;
+}
+
+.privacy {
+	height: 40px;
 }
 
 #sound-off {

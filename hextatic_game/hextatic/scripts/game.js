@@ -376,7 +376,7 @@ function loadStart() {
 		previousSound = playSound.play(soundState, previousSound);
 		hextaticAnimationStop = true;
 		jQuery("#playbox").hide();
-		jQuery(".privacytext-link").hide();
+		jQuery("#privacy-link").hide();
 		loadStageSelect();
 	});
 
@@ -392,16 +392,16 @@ function loadStart() {
 		jQuery(".sound").toggle();
 	});
 
-	jQuery(".privacytext-link").off("click").on("click", function () {
+	jQuery("#privacy-link").off("click").on("click", function () {
 		previousSound = stateChangeSound.play(soundState, previousSound);
 		hextaticAnimationStop = true;
 		jQuery("#playbox").hide();
-		jQuery(".privacytext-link").hide();
+		jQuery("#privacy-link").hide();
 		loadPrivacy();
 	});
 
 	jQuery("#playbox").fadeIn(500);
-	jQuery(".privacytext-link").fadeIn(500);
+	jQuery("#privacy-link").fadeIn(500);
 
 }
 
