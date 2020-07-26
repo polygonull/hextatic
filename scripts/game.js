@@ -376,11 +376,7 @@ function loadStart() {
 		previousSound = playSound.play(soundState, previousSound);
 		hextaticAnimationStop = true;
 		jQuery("#playbox").hide();
-<<<<<<< HEAD
 		jQuery("#privacy-link").hide();
-=======
-		jQuery(".privacytext-link").hide();
->>>>>>> 8103cbc094b1a981799b019c63fc14e9710d01de
 		loadStageSelect();
 	});
 
