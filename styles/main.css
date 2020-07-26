@@ -1,7 +1,15 @@
 @font-face {
     font-family: Stalinist;
-	src:url("../fonts/StalinistOne-Regular.ttf") format("truetype");
-	font-display: swap;
+	src: url("../fonts/StalinistOne-Regular.ttf") format("truetype");
+}
+
+* {
+	font-family: Stalinist;
+	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+	-webkit-user-select: none;       
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 html {
@@ -15,14 +23,25 @@ body {
 	background-color: white;
 }
 
-#errorbox {
+#errorbox-storage, #errorbox-height {
 	height: 100%;
 	display: none;
-	padding: 10px;
 }
 
 #mainbox {
 	height: 100%;	
+}
+
+#optionsbox {
+	position: relative;
+	z-index: 1;
+}
+
+#privacybox {
+	height: 50%;
+	display: none;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 #gamebox {
@@ -35,22 +54,16 @@ body {
 
 .changebox {
 	display: none;
-}
-
-.centered-100 {
-	height: 100%;
-    display: flex;
-    align-items: center;
-	justify-content: center;
-	flex-direction: column;
+	line-height: 0;
 }
 
 .centered {
-	height: 85%;
-    display: flex;
-    align-items: center;
-	justify-content: center;
-	flex-direction: column;
+	margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+	transform: translate(-50%, -50%);
 }
 
 #playbox {
@@ -59,7 +72,7 @@ body {
 
 #playbutton-box {
 	text-align: center;
-	margin-right: 10%;
+	margin-right: 5%;
 }
 
 #playbutton {
@@ -71,11 +84,31 @@ body {
 	cursor: pointer;
 }
 
-.playtext, .errortext {
-	font-family: Stalinist;
-	font-size: 20px;
+.errortext, .privacytext, .privacytext-link {
 	color: black;
 	text-align: center;
+}
+
+.errortext, .privacytext {
+	font-size: 16px;
+}
+
+.privacytext-link {
+	font-size: 10px;
+	text-decoration: underline;
+	cursor: pointer;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0px;
+	right: 0px;
+	bottom: 2px;
+	z-index: 1;
+}
+
+.privacy-header {
+	margin-top: 0px;
+	padding-top: 20px;
 }
 
 .errortext {
@@ -87,9 +120,8 @@ body {
     justify-content: space-between;
 }
 
-.map-number {
-	font-family: Stalinist;
-	font-size: 30px;
+#map-number {
+	font-size: 22px;
 }
 
 .refresh, .back, .forward, .sound {
@@ -99,7 +131,7 @@ body {
 }
 
 .sound {
-	/* makes the inner path equal with the back button which is 33px */
+	/* makes the inner path equal with the back button which is about 33px */
 	height: 44px;
 }
 
@@ -107,7 +139,7 @@ body {
 	display: none;
 }
 
-#select-back, #game-back {
+#privacy-back, #select-back, #game-back {
 	display: none;
 }
 
@@ -139,7 +171,6 @@ body {
 
 .numberbox {
 	font-size: 12px;
-    font-family: Stalinist;
     color: white;
 }
 
@@ -154,6 +185,7 @@ body {
 }
 
 #changebox-last {
+	float: left;
     margin-left: 5%;
 }
 
@@ -177,18 +209,16 @@ body {
 }
 
 .gamebox-options {
-	height: 50px;
-	margin-bottom: 15%;
-	margin-top: 10%;
 	text-align: center;
+	font-size: 20px;
 }
 
-* {
-	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
-	-webkit-user-select: none;       
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
+#gamebox-options-top {
+	margin-bottom: 10%;
+}
+
+#gamebox-options-bottom {
+	margin-top: 5%;
 }
 
 .pulsating {
@@ -209,16 +239,22 @@ body {
 	}
 }
 
-.rotate360 {
-	animation: spin 0.5s infinite;
+.selectbox-options {
+	margin-bottom: 15px;
+	text-align: center;
+	font-size: 20px;
 }
 
-@keyframes spin {
-	from {
-	  transform: rotate(0deg);
-	}
-	to {
-	  transform: rotate(360deg);
-	}
-  }
+#stage-number {
+	font-size: 22px;
+}
 
+@media (max-height: 449px) {
+	#mainbox {
+		display: none;
+	}
+
+	#errorbox-height {
+		display: block;
+	}
+}
