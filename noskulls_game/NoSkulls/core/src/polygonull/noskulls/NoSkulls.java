@@ -2,6 +2,8 @@ package polygonull.noskulls;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,29 +11,39 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.HashMap;
 
+import polygonull.noskulls.components.Counter;
+import polygonull.noskulls.components.Heart;
+import polygonull.noskulls.components.IntegerPair;
 import polygonull.noskulls.components.Panel;
 import polygonull.noskulls.components.SkullAndHeartPanel;
 import polygonull.noskulls.helpers.AlphanumericHelper;
 import polygonull.noskulls.helpers.State;
 
+import static com.badlogic.gdx.math.MathUtils.random;
+
 public class NoSkulls extends ApplicationAdapter {
 
-	private class Pair {
+	private static String alphanumerics = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!:| ";
 
-		public int i;
-		public int j;
-
-		public Pair(int i, int j) {
-			this.i = i;
-			this.j = j;
-		}
-
-	}
-
-	private static String alphanumerics = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!";
+	// Text
+	private static String NO = "NO";
+	private static String SKULLS = "SKULLS";
+	private static String PLAY = "PLAY";
+	private static String RESUME = "RESUME";
+	private static String BEST = "BEST";
+	private static String LEVEL = "LEVEL";
+	private static String LIVES = "LIVES:";
+	private static String TRIES = "TRIES:";
+	private static String GAME_OVER = "GAME OVER";
+	private static String NICE = "NICE!";
+	private static String ALMOST = "ALMOST";
+	private static String CLOSE = "CLOSE";
+	private static String ENOUGH = "ENOUGH";
 
 	// Texture dimensions
 	public static float BACKGROUND_WIDTH = 480;
@@ -66,8 +78,12 @@ public class NoSkulls extends ApplicationAdapter {
 	public static float INFO_HEIGHT = 72;
 	public static float WHITE_PIXEL_WIDTH = 1;
 	public static float WHITE_PIXEL_HEIGHT = 1;
-	public static float SYMBOL_BIG_WIDTH = 40;
-	public static float SYMBOL_BIG_HEIGHT = 44;
+	public static float BIG_SYMBOL_WIDTH = 40;
+	public static float BIG_SYMBOL_HEIGHT = 44;
+	public static float GAME_OVER_LEVEL_WIDTH = 180;
+	public static float GAME_OVER_LEVEL_HEIGHT = 72;
+	public static float PANEL_LIFE_WIDTH = 32;
+	public static float PANEL_LIFE_HEIGHT = 30;
 
 	// Game 'magic' numbers
 	public static float CAMERA_WIDTH = 480;
@@ -82,6 +98,8 @@ public class NoSkulls extends ApplicationAdapter {
 	public static float UI_HEIGHT_SPACE_2 = 13;
 	public static float UI_WIDTH_SPACE_3 = 20;
 	public static float UI_HEIGHT_SPACE_3 = 20;
+	public static float UI_WIDTH_SPACE_4 = 50;
+	public static float UI_HEIGHT_SPACE_4 = 50;
 	public static float MAIN_MENU_WIDTH = PLAY_WIDTH;
 	public static float MAIN_MENU_HEIGHT = PLAY_HEIGHT + UI_HEIGHT_SPACE_1 + BEST_HEIGHT;
 	public static float GAME_1_WIDTH = BOARD_WIDTH_COUNT * PANEL_WIDTH + (BOARD_WIDTH_COUNT - 1) * BOARD_WIDTH_SPACE;
@@ -103,7 +121,7 @@ public class NoSkulls extends ApplicationAdapter {
 	public static float BACKGROUND_4_X = -CAMERA_WIDTH;
 	public static float BACKGROUND_4_Y = BACKGROUND_HEIGHT;
 	public static float MAIN_MENU_X = (CAMERA_WIDTH - MAIN_MENU_WIDTH) / 2;
-	public static float MAIN_MENU_Y = (CAMERA_HEIGHT - MAIN_MENU_HEIGHT) / 2;
+	public static float MAIN_MENU_Y = (CAMERA_HEIGHT - MAIN_MENU_HEIGHT) / 2 - (PLAY_HEIGHT - UI_HEIGHT_SPACE_1 - BEST_HEIGHT) / 2;
 	public static float PLAY_X = MAIN_MENU_X;
 	public static float PLAY_Y = MAIN_MENU_Y + (MAIN_MENU_HEIGHT - PLAY_HEIGHT);
 	public static float BEST_X = MAIN_MENU_X;
@@ -119,9 +137,13 @@ public class NoSkulls extends ApplicationAdapter {
 	public static float PAUSE_X = GAME_4_X;
 	public static float PAUSE_Y = CAMERA_HEIGHT - GAME_4_Y - PAUSE_HEIGHT;
 	public static float SCORE_X = GAME_4_X + PAUSE_WIDTH + UI_WIDTH_SPACE_1;
-	public static float SCORE_Y = CAMERA_HEIGHT - GAME_4_Y - SCORE_HEIGHT;
+	public static float SCORE_Y = CAMERA_HEIGHT - GAME_4_Y  - SCORE_HEIGHT;
 	public static float GAME_CUP_X = SCORE_X + (SCORE_WIDTH - CUP_WIDTH) / 2;
 	public static float GAME_CUP_Y = SCORE_Y + (SCORE_HEIGHT - CUP_HEIGHT) / 2;
+	public static float GAME_BEST_LABEL_X = GAME_CUP_X - ((SCORE_WIDTH - CUP_WIDTH) / 2 + BIG_SYMBOL_WIDTH * 0.4f * BEST.length()) / 2;
+	public static float GAME_BEST_LABEL_Y = SCORE_Y - UI_HEIGHT_SPACE_2 - BIG_SYMBOL_HEIGHT * 0.4f;
+	public static float GAME_LEVEL_LABEL_X = GAME_CUP_X + CUP_WIDTH  + ((SCORE_WIDTH - CUP_WIDTH) / 2 - BIG_SYMBOL_WIDTH * 0.4f * LEVEL.length()) / 2;
+	public static float GAME_LEVEL_LABEL_Y = SCORE_Y - UI_HEIGHT_SPACE_2 - BIG_SYMBOL_HEIGHT * 0.4f;
 	public static float LIFE_1_X = GAME_2_X + UI_WIDTH_SPACE_2;
 	public static float LIFE_1_Y = GAME_2_Y + GAME_1_HEIGHT + UI_HEIGHT_SPACE_2 + (TRIES_HEIGHT - LIFE_HEIGHT) / 2;
 	public static float LIFE_2_X = GAME_2_X + UI_WIDTH_SPACE_2 * 2 + LIFE_WIDTH;
@@ -142,15 +164,46 @@ public class NoSkulls extends ApplicationAdapter {
 	public static float INFO_Y = SOUND_Y - SOUND_HEIGHT - UI_HEIGHT_SPACE_1;
 	public static float INSTAGRAM_X = GAME_4_X;
 	public static float INSTAGRAM_Y = INFO_Y - INFO_HEIGHT - UI_HEIGHT_SPACE_1;
+	public static float GAME_OVER_PLAY_X = MAIN_MENU_X;
+	public static float GAME_OVER_PLAY_Y = PLAY_Y - BEST_HEIGHT;
+	public static float GAME_OVER_BEST_X = MAIN_MENU_X;
+	public static float GAME_OVER_BEST_Y = BEST_Y - BEST_HEIGHT;
+	public static float GAME_OVER_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * GAME_OVER.length()) / 2;
+	public static float GAME_OVER_LABEL_Y = SETTINGS_Y - BIG_SYMBOL_HEIGHT - UI_HEIGHT_SPACE_4;
+	public static float GAME_OVER_LEVEL_X = MAIN_MENU_X;
+	public static float GAME_OVER_LEVEL_Y = GAME_OVER_LABEL_Y - BEST_HEIGHT - UI_HEIGHT_SPACE_4;
+	public static float NICE_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * NICE.length()) / 2;
+	public static float NICE_LABEL_Y = 	(CAMERA_HEIGHT - BIG_SYMBOL_HEIGHT) / 2;
+	public static float ALMOST_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * ALMOST.length()) / 2;
+	public static float ALMOST_LABEL_Y = (CAMERA_HEIGHT - BIG_SYMBOL_HEIGHT) / 2;
+	public static float CLOSE_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * CLOSE.length()) / 2;
+	public static float CLOSE_LABEL_Y = (CAMERA_HEIGHT - BIG_SYMBOL_HEIGHT) / 2 + BIG_SYMBOL_HEIGHT / 2 + UI_HEIGHT_SPACE_2;
+	public static float ENOUGH_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * ENOUGH.length()) / 2;
+	public static float ENOUGH_LABEL_Y = (CAMERA_HEIGHT - BIG_SYMBOL_HEIGHT) / 2 - BIG_SYMBOL_HEIGHT / 2 - UI_HEIGHT_SPACE_2;
+	// public static float PAUSE_SYMBOL_X = CAMERA_WIDTH - BIG_SYMBOL_WIDTH * 0.7f - UI_WIDTH_SPACE_2;
+	// public static float PAUSE_SYMBOL_Y = SETTINGS_Y + (SETTINGS_HEIGHT - BIG_SYMBOL_HEIGHT *  0.7f) / 2;
+	// public static float PAUSE_LABEL_X = PAUSE_SYMBOL_X - UI_WIDTH_SPACE_2 - BIG_SYMBOL_WIDTH * PAUSE.length() * 0.7f;
+	// public static float PAUSE_LABEL_Y = PAUSE_SYMBOL_Y;
+	public static float PLAY_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * PLAY.length()) / 2;
+	public static float PLAY_LABEL_Y = MAIN_MENU_Y + MAIN_MENU_HEIGHT + UI_WIDTH_SPACE_4;
+	public static float RESUME_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * RESUME.length()) / 2;
+	public static float RESUME_LABEL_Y = PLAY_LABEL_Y;
+	public static float NO_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * NO.length()) / 2;
+	public static float NO_LABEL_Y = MAIN_MENU_Y - UI_HEIGHT_SPACE_4 - BIG_SYMBOL_HEIGHT;
+	public static float SKULLS_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * SKULLS.length()) / 2;
+	public static float SKULLS_LABEL_Y = NO_LABEL_Y - UI_HEIGHT_SPACE_2- BIG_SYMBOL_HEIGHT;
+	public static float LEVEL_REACHED_LABEL_X = (CAMERA_WIDTH - BIG_SYMBOL_WIDTH * 0.4f * LEVEL.length()) / 2;
+	public static float LEVEL_REACHED_LABEL_Y = GAME_OVER_LEVEL_Y + BEST_HEIGHT + UI_HEIGHT_SPACE_2;
 
 	// Game state
 	private State state = State.MAIN_MENU;
 	private int level = 1;
 	private int best = 1;
-	private int prevTries = 3;
-	private int tries = 3;
+	private int prevTries = 1;
+	private int tries = 1;
 	private int lives = 3;
-	private ArrayList<Pair> prevMoves;
+	private ArrayList<IntegerPair> prevMoves;
+	private int skulls = 0;
 	private AlphanumericHelper alphanumericHelper;
 
 	// Batch
@@ -173,7 +226,8 @@ public class NoSkulls extends ApplicationAdapter {
 	private Texture infoSprite;
 	private Texture instagramSprite;
 	private Texture whitePixel;
-	private Texture symbolsBigSprite;
+	private Texture bigSymbolsSprite;
+	private Texture panelLifeSprite;
 
 	// Touch areas
 	private Rectangle settingsTouchArea;
@@ -184,18 +238,40 @@ public class NoSkulls extends ApplicationAdapter {
 	private Rectangle playTouchArea;
 	private Rectangle pauseTouchArea;
 	private Rectangle[][] panelsTouchArea;
+	private Rectangle gameOverPlayArea;
 
 	private OrthographicCamera camera;
 
 	private SkullAndHeartPanel[][] panelModels;
+	private SkullAndHeartPanel[][] prevPanelModels;
+	private Heart[][] heartModels;
 	private Panel settingsModel;
 	private Panel musicModel;
 	private Panel soundModel;
 
-	private float timer;
-	private boolean timerdown;
-	private float mover;
+	private IntegerPair[][] heartCoordinates;
+
 	private boolean flipping = false;
+	private boolean reset = false;
+
+	private HashMap<String, Counter> counterMap;
+
+	Sound flipSound;
+	Sound resetSound;
+    Sound playSound;
+	Sound pauseSound;
+	Sound gameOverSound;
+	Sound successSound;
+	Sound failSound;
+
+	private void drawText(Texture fontTexture, float x, float y, float charWidth, float charHeight, float scale, String text) {
+
+		ArrayList<Integer> textOffsets = alphanumericHelper.stringToOffsets(text);
+		for(int i = 0; i < textOffsets.size(); i++) {
+			batch.draw(fontTexture,  x + i * charWidth * scale, y, 0, 0, charWidth, charHeight, scale, scale, 0, (int)(textOffsets.get(i) * charWidth), 0, (int)charWidth, (int)charHeight, false, false);
+		}
+
+	}
 
 	private void clearBoard() {
 
@@ -204,29 +280,33 @@ public class NoSkulls extends ApplicationAdapter {
 				panelModels[i][j].setActive(true);
 				panelModels[i][j].setState(16);
 				panelModels[i][j].setPrevState(16);
+				prevPanelModels[i][j].setActive(true);
+				prevPanelModels[i][j].setState(16);
+				prevPanelModels[i][j].setPrevState(16);
 			}
 		}
 
 	}
 
-	private ArrayList<Pair> createBoard(int tries) {
+	private ArrayList<IntegerPair> createBoard(int tries) {
 
-		ArrayList<Pair> moves = new ArrayList<Pair>();
+		ArrayList<IntegerPair> moves = new ArrayList<>();
 
 		while(tries != 0) {
-			Random rand = new Random();
-			int i = rand.nextInt(BOARD_HEIGHT_COUNT);
-			int j = rand.nextInt(BOARD_WIDTH_COUNT);
-			panelModels[i][j].setActive(!panelModels[i][j].isActive());
-			panelModels[i][j].setState(panelModels[i][j].isActive() ? 16 : 0);
-			panelModels[i][j].setPrevState(panelModels[i][j].isActive() ? 16 : 0);
-			for (Panel panel : panelModels[i][j].getNeighbours()) {
-				panel.setActive(!panel.isActive());
-				panel.setState(panel.isActive() ? 16 : 0);
-				panel.setPrevState(panel.isActive() ? 16 : 0);
+			int i = random.nextInt(BOARD_HEIGHT_COUNT);
+			int j = random.nextInt(BOARD_WIDTH_COUNT);
+			panelModels[i][j].flip();
+			float count = panelModels[i][j].isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+			for (SkullAndHeartPanel panel : panelModels[i][j].getNeighbours()) {
+				panel.flip();
+				count = panel.isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+			}
+			prevPanelModels[i][j].flip();
+			for (SkullAndHeartPanel panel : prevPanelModels[i][j].getNeighbours()) {
+				panel.flip();
 			}
 			tries--;
-			moves.add(new Pair(i, j));
+			moves.add(new IntegerPair(i, j));
 		}
 
 		return moves;
@@ -236,32 +316,71 @@ public class NoSkulls extends ApplicationAdapter {
 	private void recreateBoard() {
 
 		for(int k = 0; k < prevMoves.size(); k++) {
-			int i = prevMoves.get(k).i;
-			int j = prevMoves.get(k).j;
-			panelModels[i][j].setActive(!panelModels[i][j].isActive());
-			panelModels[i][j].setState(panelModels[i][j].isActive() ? 16 : 0);
-			panelModels[i][j].setPrevState(panelModels[i][j].isActive() ? 16 : 0);
+			int i = prevMoves.get(k).getI();
+			int j = prevMoves.get(k).getJ();
+			panelModels[i][j].flip();
 			for (Panel panel : panelModels[i][j].getNeighbours()) {
-				panel.setActive(!panel.isActive());
-				panel.setState(panel.isActive() ? 16 : 0);
-				panel.setPrevState(panel.isActive() ? 16 : 0);
+				panel.flip();
 			}
 		}
 
 	}
 
+	public void resetBoard() {
+
+		for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
+			for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
+				if (panelModels[i][j].isActive() != prevPanelModels[i][j].isActive()) {
+					panelModels[i][j].setJustFlipped(true);
+					panelModels[i][j].setActive(!panelModels[i][j].isActive());
+					flipping = true;
+					float count = panelModels[i][j].isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+				}
+			}
+		}
+
+	}
+
+	public void checkFlipping(Panel panel) {
+		if(panel.isJustFlipped()) {
+			panel.setPrevState(panel.getState());
+			panel.changeState();
+			panel.setJustFlipped(false);
+		} else if(panel.getPrevState() < panel.getState()) {
+			panel.changeState();
+			if(panel.getState() == panel.getPrevState() + 16) {
+				flipping = false;
+				if(panel.getState() == 32) {
+					panel.setState(0);
+				}
+				panel.setPrevState(panel.getState());
+			}
+		}
+	}
+
 	@Override
 	public void create() {
+
+		flipSound = Gdx.audio.newSound(Gdx.files.internal("flip.mp3"));
+		resetSound = Gdx.audio.newSound(Gdx.files.internal("reset.mp3"));
+        playSound = Gdx.audio.newSound(Gdx.files.internal("play.ogg"));
+		pauseSound = Gdx.audio.newSound(Gdx.files.internal("pause.ogg"));
+		gameOverSound = Gdx.audio.newSound(Gdx.files.internal("game_over.ogg"));
+		successSound = Gdx.audio.newSound(Gdx.files.internal("success.ogg"));
+		failSound = Gdx.audio.newSound(Gdx.files.internal("fail.ogg"));
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, CAMERA_WIDTH, CAMERA_HEIGHT);
 		batch = new SpriteBatch();
 		panelsTouchArea = new Rectangle[BOARD_WIDTH_COUNT][BOARD_HEIGHT_COUNT];
 		panelModels = new SkullAndHeartPanel[BOARD_WIDTH_COUNT][BOARD_HEIGHT_COUNT];
+		prevPanelModels = new SkullAndHeartPanel[BOARD_WIDTH_COUNT][BOARD_HEIGHT_COUNT];
 		settingsModel = new Panel();
 		musicModel = new Panel();
 		soundModel = new Panel();
 		alphanumericHelper = new AlphanumericHelper(alphanumerics);
+
+		heartModels = new Heart[BOARD_WIDTH_COUNT][BOARD_HEIGHT_COUNT];
 
 		// Load textures
 		backgroundSprite = new Texture("background.png");
@@ -280,7 +399,8 @@ public class NoSkulls extends ApplicationAdapter {
 		infoSprite = new Texture("info.png");
 		instagramSprite = new Texture("instagram.png");
 		whitePixel = new Texture("white_pixel.png");
-		symbolsBigSprite = new Texture("symbols_grey.png");
+		bigSymbolsSprite = new Texture("symbols_grey.png");
+		panelLifeSprite = new Texture("life2.png");
 
 		// Initialize touch areas
 		playTouchArea = new Rectangle(PLAY_X, PLAY_Y, PLAY_WIDTH, PLAY_HEIGHT);
@@ -288,11 +408,13 @@ public class NoSkulls extends ApplicationAdapter {
 		settingsTouchArea = new Rectangle(SETTINGS_X, SETTINGS_Y, SETTINGS_WIDTH, SETTINGS_HEIGHT);
 		musicTouchArea = new Rectangle(MUSIC_X, MUSIC_Y, MUSIC_WIDTH, MUSIC_HEIGHT);
 		soundTouchArea = new Rectangle(SOUND_X, SOUND_Y, SOUND_WIDTH, SOUND_HEIGHT);
+		// gameOverPlayArea = new Rectangle(GAME_OVER_PLAY_X, GAME_OVER_PLAY_Y, PLAY_WIDTH, PLAY_HEIGHT);
 		float start_x = PANEL_1_X;
 		float start_y = PANEL_1_Y;
 		for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
 			for(int j = 0; j < BOARD_WIDTH_COUNT; j++) {
 				panelModels[i][j] = new SkullAndHeartPanel(i, j);
+				prevPanelModels[i][j] = new SkullAndHeartPanel(i, j);
 				panelsTouchArea[i][j] = new Rectangle(start_x, start_y, PANEL_WIDTH, PANEL_HEIGHT);
 				start_x += PANEL_WIDTH + BOARD_WIDTH_SPACE;
 			}
@@ -303,14 +425,28 @@ public class NoSkulls extends ApplicationAdapter {
 		for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
 			for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
 				panelModels[i][j].populateNeighbours(panelModels);
+				prevPanelModels[i][j].populateNeighbours(prevPanelModels);
 			}
 		}
 
-		prevMoves = createBoard(tries);
+		for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
+			for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
+				heartModels[i][j] = new Heart((int)panelsTouchArea[i][j].x + 20, (int)panelsTouchArea[i][j].y + 22);
+			}
+		}
 
-		timer = 1;
-		timerdown = false;
-		mover = 0;
+		counterMap = new HashMap<>();
+		counterMap.put("background", new Counter(0, 0.9f, true, CAMERA_WIDTH, -1));
+		counterMap.put("settings", new Counter(0, 1, true, 16, 0));
+		counterMap.put("fail", new Counter(0, 1, true, 105, 0));
+		counterMap.put("fail_panels", new Counter(0, 1, true, 36, -1));
+		counterMap.put("fail_panel_pulse", new Counter(1, 0.008f, true, 1.04f, 0.96f));
+		counterMap.put("fail_panel_pulse_count", new Counter(0, 1, true, 2, 0));
+		counterMap.put("success", new Counter(0, 1, true, 105, 0));
+		counterMap.put("success_panel_heart_pulse", new Counter(1, 0.004f, true, 1.12f, 1));
+		counterMap.put("success_heart_pulse", new Counter(1, 0.11f, 1.05f, true, -1, -1));
+
+		prevMoves = createBoard(tries);
 
 	}
 
@@ -333,216 +469,206 @@ public class NoSkulls extends ApplicationAdapter {
 
 	}
 
-	public void checkFlipping(Panel panel) {
-		if(panel.isJustFlipped()) {
-			panel.setPrevState(panel.getState());
-			panel.changeState();
-			panel.setJustFlipped(false);
-		} else if(panel.getPrevState() < panel.getState()) {
-			panel.changeState();
-			if(panel.getState() == panel.getPrevState() + 16) {
-				if(panel.getState() == 32) {
-					panel.setState(0);
-				}
-				panel.setPrevState(panel.getState());
+	public void renderSettings() {
+
+		checkFlipping(settingsModel);
+
+		batch.draw(settingsSprite, SETTINGS_X, SETTINGS_Y, (int)(settingsModel.getState() * SETTINGS_WIDTH), 0, (int)SETTINGS_WIDTH, (int)SETTINGS_HEIGHT);
+
+		if(!settingsModel.isActive()) {
+			if(counterMap.get("settings").getCount() < counterMap.get("settings").getTopThreshold()) {
+				counterMap.get("settings").step();
+			}
+		} else {
+			if(counterMap.get("settings").getCount() > counterMap.get("settings").getBottomThreshold()) {
+				counterMap.get("settings").step();
 			}
 		}
+
+		if(counterMap.get("settings").getCount() > counterMap.get("settings").getTopThreshold() -
+				(counterMap.get("settings").getTopThreshold() / 4) * 4 + counterMap.get("settings").getStep()) {
+			checkFlipping(musicModel);
+			batch.draw(musicSprite, MUSIC_X, MUSIC_Y, (int) (musicModel.getState() * MUSIC_WIDTH), 0, (int) MUSIC_WIDTH, (int) MUSIC_HEIGHT);
+		}
+		if(counterMap.get("settings").getCount() > counterMap.get("settings").getTopThreshold() -
+				(counterMap.get("settings").getTopThreshold() / 4) * 3 + counterMap.get("settings").getStep()) {
+			checkFlipping(soundModel);
+			batch.draw(soundSprite, SOUND_X, SOUND_Y, (int) (soundModel.getState() * SOUND_WIDTH), 0, (int) SOUND_WIDTH, (int) SOUND_HEIGHT);
+		}
+		if(counterMap.get("settings").getCount() > counterMap.get("settings").getTopThreshold() -
+				(counterMap.get("settings").getTopThreshold() / 4) * 2 + counterMap.get("settings").getStep()) {
+			batch.draw(infoSprite, INFO_X, INFO_Y);
+		}
+		if(counterMap.get("settings").getCount() > counterMap.get("settings").getTopThreshold() -
+				(counterMap.get("settings").getTopThreshold() / 4) * 1 + counterMap.get("settings").getStep()) {
+			batch.draw(instagramSprite, INSTAGRAM_X, INSTAGRAM_Y);
+		}
+
 	}
 
 	public void renderMainMenu() {
 
-		batch.draw(backgroundSprite, BACKGROUND_1_X + mover, BACKGROUND_1_Y - mover);
-		batch.draw(backgroundSprite, BACKGROUND_2_X + mover, BACKGROUND_2_Y - mover);
-		batch.draw(backgroundSprite, BACKGROUND_3_X + mover, BACKGROUND_3_Y - mover);
-		batch.draw(backgroundSprite, BACKGROUND_4_X + mover, BACKGROUND_4_Y - mover);
-
-		batch.setColor(255, 255, 255, 0.7f);
-		ArrayList<Integer> noOffsets = alphanumericHelper.stringToOffsets("PAUSED");
-		int noOffset = (int)((CAMERA_WIDTH - SYMBOL_BIG_WIDTH * noOffsets.size()) / 2);
-		for(int i = 0; i < noOffsets.size(); i++) {
-			batch.draw(symbolsBigSprite,  noOffset + i * SYMBOL_BIG_WIDTH, (CAMERA_HEIGHT - SYMBOL_BIG_HEIGHT) / 2 + 200, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 1, 1, 0, (int)(noOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-		}
-		ArrayList<Integer> skullsOffsets = alphanumericHelper.stringToOffsets("SKULLS");
-		int skullsOffset = (int)((CAMERA_WIDTH - SYMBOL_BIG_WIDTH * skullsOffsets.size()) / 2);
-		for(int i = 0; i < skullsOffsets.size(); i++) {
-			batch.draw(symbolsBigSprite,  skullsOffset + i * SYMBOL_BIG_WIDTH, (CAMERA_HEIGHT - SYMBOL_BIG_HEIGHT) / 2 - 200 - SYMBOL_BIG_HEIGHT, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 1, 1, 0, (int)(skullsOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-		}
-		batch.setColor(255,255,255, 1);
+		batch.draw(backgroundSprite, BACKGROUND_1_X + counterMap.get("background").getCount(), BACKGROUND_1_Y - counterMap.get("background").getCount());
+		batch.draw(backgroundSprite, BACKGROUND_2_X + counterMap.get("background").getCount(), BACKGROUND_2_Y - counterMap.get("background").getCount());
+		batch.draw(backgroundSprite, BACKGROUND_3_X + counterMap.get("background").getCount(), BACKGROUND_3_Y - counterMap.get("background").getCount());
+		batch.draw(backgroundSprite, BACKGROUND_4_X + counterMap.get("background").getCount(), BACKGROUND_4_Y - counterMap.get("background").getCount());
 
 		batch.draw(playSprite, PLAY_X, PLAY_Y, 0, 0, PLAY_WIDTH, PLAY_HEIGHT, 1f, 1f, 0, 0, 0, (int)PLAY_WIDTH, (int)PLAY_HEIGHT, false, false);
 		batch.draw(bestSprite, BEST_X, BEST_Y);
-		ArrayList<Integer> bestOffsets = alphanumericHelper.stringToOffsets(Integer.toString(best));
-		int bestOffset = (int)(BEST_X + (BEST_WIDTH + CUP_WIDTH + UI_WIDTH_SPACE_3 - SYMBOL_WIDTH * bestOffsets.size()) / 2);
-		batch.draw(cupSprite, bestOffset - CUP_WIDTH - UI_WIDTH_SPACE_3, BEST_Y + (BEST_HEIGHT - CUP_HEIGHT) / 2);
-		for(int i = 0; i < bestOffsets.size(); i++) {
-			batch.draw(symbolsSprite,  bestOffset + i * SYMBOL_WIDTH, BEST_Y + (BEST_HEIGHT - SYMBOL_HEIGHT) / 2, 0, 0, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1f, 1f, 0, (int)(bestOffsets.get(i) * SYMBOL_WIDTH), 0, (int)SYMBOL_WIDTH, (int)SYMBOL_HEIGHT, false, false);
+		batch.draw(cupSprite, (BEST_X + (BEST_WIDTH + CUP_WIDTH + UI_WIDTH_SPACE_3 - SYMBOL_WIDTH * Integer.toString(best).length()) / 2) - CUP_WIDTH - UI_WIDTH_SPACE_3, BEST_Y + (BEST_HEIGHT - CUP_HEIGHT) / 2);
+		drawText(symbolsSprite, BEST_X + (BEST_WIDTH + CUP_WIDTH + UI_WIDTH_SPACE_3 - SYMBOL_WIDTH * Integer.toString(best).length()) / 2, BEST_Y + (BEST_HEIGHT - SYMBOL_HEIGHT) / 2, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, Integer.toString(best));
+
+		if(state == State.MAIN_MENU) {
+			batch.setColor(255, 255, 255, 0.9f);
+			drawText(bigSymbolsSprite, PLAY_LABEL_X, PLAY_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 1, PLAY);
+			batch.setColor(Color.WHITE);
 		}
 
-		if(!settingsModel.isActive()) {
-			checkFlipping(settingsModel);
-			batch.draw(settingsSprite, SETTINGS_X, SETTINGS_Y, (int)(settingsModel.getState() * SETTINGS_WIDTH), 0, (int)SETTINGS_WIDTH, (int)SETTINGS_HEIGHT);
-			batch.setColor(255, 255, 255, 0.5f);
-			ArrayList<Integer> closeOffsets = alphanumericHelper.stringToOffsets("CLOSE");
-			int closeOffset = (int)(int)(SETTINGS_WIDTH + UI_WIDTH_SPACE_2 * 2);
-			for(int i = 0; i < closeOffsets.size(); i++) {
-				batch.draw(symbolsBigSprite,  closeOffset + i * SYMBOL_BIG_WIDTH * 0.4f, SETTINGS_Y + (SETTINGS_HEIGHT - SYMBOL_BIG_HEIGHT * 0.4f) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 0.4f, 0.4f, 0, (int)(closeOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-			}
-			batch.setColor(255, 255, 255, 1f);
-			if (timer < 16) {
-				timer++;
-			}
-			if(timer > 1) {
-				checkFlipping(musicModel);
-				batch.draw(musicSprite, MUSIC_X, MUSIC_Y, (int) (musicModel.getState() * MUSIC_WIDTH), 0, (int) MUSIC_WIDTH, (int) MUSIC_HEIGHT);
-				batch.setColor(255, 255, 255, 0.7f);
-				ArrayList<Integer> musicOffsets = alphanumericHelper.stringToOffsets("MUSIC");
-				int musicOffset = (int)(MUSIC_WIDTH + UI_WIDTH_SPACE_2 * 2);
-				for(int i = 0; i < musicOffsets.size(); i++) {
-					batch.draw(symbolsBigSprite,  musicOffset + i * SYMBOL_BIG_WIDTH * 0.4f, MUSIC_Y + (MUSIC_HEIGHT - SYMBOL_BIG_HEIGHT * 0.4f) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 0.4f, 0.4f, 0, (int)(musicOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-				}
-				batch.setColor(255, 255, 255, 1f);
-			}
-			if(timer > 5) {
-				checkFlipping(soundModel);
-				batch.draw(soundSprite, SOUND_X, SOUND_Y, (int) (soundModel.getState() * SOUND_WIDTH), 0, (int) SOUND_WIDTH, (int) SOUND_HEIGHT);
-				batch.setColor(255, 255, 255, 0.7f);
-				ArrayList<Integer> soundOffsets = alphanumericHelper.stringToOffsets("SFX");
-				int soundOffset = (int)(SOUND_WIDTH + UI_WIDTH_SPACE_2 * 2);
-				for(int i = 0; i < soundOffsets.size(); i++) {
-					batch.draw(symbolsBigSprite,  soundOffset + i * SYMBOL_BIG_WIDTH * 0.4f, SOUND_Y + (SOUND_HEIGHT - SYMBOL_BIG_HEIGHT * 0.4f) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 0.4f, 0.4f, 0, (int)(soundOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-				}
-				batch.setColor(255, 255, 255, 1f);
-			}
-			if(timer > 9) {
-				batch.draw(infoSprite, INFO_X, INFO_Y);
-				batch.setColor(255, 255, 255, 0.7f);
-				ArrayList<Integer> infoOffsets = alphanumericHelper.stringToOffsets("PRIVACY POLICY");
-				int infoOffset = (int)(INFO_WIDTH + UI_WIDTH_SPACE_2 * 2);
-				for(int i = 0; i < infoOffsets.size(); i++) {
-					batch.draw(symbolsBigSprite,  infoOffset + i * SYMBOL_BIG_WIDTH * 0.4f, INFO_Y + (INFO_HEIGHT - SYMBOL_BIG_HEIGHT * 0.4f) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 0.4f, 0.4f, 0, (int)(infoOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-				}
-				batch.setColor(255, 255, 255, 1f);
-			}
-			if(timer > 13) {
-				batch.draw(instagramSprite, INSTAGRAM_X, INSTAGRAM_Y);
-				batch.setColor(255, 255, 255, 0.7f);
-				ArrayList<Integer> instagramOffsets = alphanumericHelper.stringToOffsets("INSTAGRAM");
-				int instagramOffset = (int)(INSTAGRAM_WIDTH + UI_WIDTH_SPACE_2 * 2);
-				for(int i = 0; i < instagramOffsets.size(); i++) {
-					batch.draw(symbolsBigSprite,  instagramOffset + i * SYMBOL_BIG_WIDTH * 0.4f, INSTAGRAM_Y + (INSTAGRAM_HEIGHT - SYMBOL_BIG_HEIGHT * 0.4f) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 0.4f, 0.4f, 0, (int)(instagramOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-				}
-				batch.setColor(255, 255, 255, 1f);
-			}
-		} else {
-			checkFlipping(settingsModel);
-			batch.draw(settingsSprite, SETTINGS_X, SETTINGS_Y, (int)(settingsModel.getState() * SETTINGS_WIDTH), 0, (int)SETTINGS_WIDTH, (int)SETTINGS_HEIGHT);
-			batch.setColor(255, 255, 255, 0.5f);
-			ArrayList<Integer> settingsOffsets = alphanumericHelper.stringToOffsets("MENU");
-			int settingsOffset = (int)(int)(SETTINGS_WIDTH + UI_WIDTH_SPACE_2 * 2);
-			for(int i = 0; i < settingsOffsets.size(); i++) {
-				batch.draw(symbolsBigSprite,  settingsOffset + i * SYMBOL_BIG_WIDTH * 0.4f, SETTINGS_Y + (SETTINGS_HEIGHT - SYMBOL_BIG_HEIGHT * 0.4f) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 0.4f, 0.4f, 0, (int)(settingsOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-			}
-			batch.setColor(255, 255, 255, 1f);
-			if (timer > 0) {
-				timer--;
-			}
-			if(timer > 3) {
-				checkFlipping(musicModel);
-				batch.draw(musicSprite, MUSIC_X, MUSIC_Y, (int) (musicModel.getState() * MUSIC_WIDTH), 0, (int) MUSIC_WIDTH, (int) MUSIC_HEIGHT);
-			}
-			if(timer > 7) {
-				checkFlipping(soundModel);
-				batch.draw(soundSprite, SOUND_X, SOUND_Y, (int) (soundModel.getState() * SOUND_WIDTH), 0, (int) SOUND_WIDTH, (int) SOUND_HEIGHT);
-			}
-			if(timer > 11) {
-				batch.draw(infoSprite, INFO_X, INFO_Y);
-			}
-			if(timer > 15) {
-				batch.draw(instagramSprite, INSTAGRAM_X, INSTAGRAM_Y);
-			}
-		}
+		renderSettings();
 
-		mover = mover + 0.9f;
-		if(mover > CAMERA_WIDTH) {
-			mover = 0;
-		}
+		counterMap.get("background").step();
+
+	}
+
+	public void renderPause() {
+
+		batch.setColor(255, 255, 255, 0.9f);
+		drawText(bigSymbolsSprite, RESUME_LABEL_X, RESUME_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 1, RESUME);
+		batch.setColor(Color.WHITE);
 
 	}
 
 	public void renderFail() {
 
+		if(counterMap.get("fail_panel_pulse").getCount() <= counterMap.get("fail_panel_pulse").getBottomThreshold()
+			&& counterMap.get("fail_panel_pulse_count").getCount() != counterMap.get("fail_panel_pulse_count").getTopThreshold()) {
+			counterMap.get("fail_panel_pulse_count").step();
+		}
+
+		if(counterMap.get("fail_panel_pulse_count").getCount() < counterMap.get("fail_panel_pulse_count").getTopThreshold()) {
+			float pulse = counterMap.get("fail_panel_pulse").step();
+			for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
+				for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
+					if(!panelModels[i][j].isActive()) {
+						batch.draw(panelsSprite, panelsTouchArea[i][j].x + (PANEL_WIDTH - PANEL_WIDTH * pulse) / 2, panelsTouchArea[i][j].y + (PANEL_HEIGHT - PANEL_HEIGHT * pulse) / 2, 0, 0, PANEL_WIDTH, PANEL_HEIGHT, pulse, pulse, 0, (int) PANEL_WIDTH * panelModels[i][j].getState(), 0, (int)PANEL_WIDTH, (int)PANEL_HEIGHT, false,false);
+					}
+				}
+			}
+		} else {
+			if(lives - 1 != 0 && Math.abs(counterMap.get("fail_panel_pulse").getCount() - counterMap.get("fail_panel_pulse").getInitialCount()) < 0.0001) {
+				if(!reset) {
+					resetSound.play();
+					resetBoard();
+					reset = true;
+				}
+				for (int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
+					for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
+						batch.draw(panelsSprite, panelsTouchArea[i][j].x, panelsTouchArea[i][j].y, 0, 0, PANEL_WIDTH, PANEL_HEIGHT, 1, 1, 0, (int) PANEL_WIDTH * panelModels[i][j].getState(), 0, (int) PANEL_WIDTH, (int) PANEL_HEIGHT, false, false);
+						checkFlipping(panelModels[i][j]);
+					}
+				}
+			} else {
+				float pulse = 1;
+				if(Math.abs(counterMap.get("fail_panel_pulse").getCount() - counterMap.get("fail_panel_pulse").getInitialCount()) > 0.0001) {
+					pulse = counterMap.get("fail_panel_pulse").step();
+				}
+				for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
+					for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
+						if(!panelModels[i][j].isActive()) {
+							batch.draw(panelsSprite, panelsTouchArea[i][j].x + (PANEL_WIDTH - PANEL_WIDTH * pulse) / 2, panelsTouchArea[i][j].y + (PANEL_HEIGHT - PANEL_HEIGHT * pulse) / 2, 0, 0, PANEL_WIDTH, PANEL_HEIGHT, pulse, pulse, 0, (int) PANEL_WIDTH * panelModels[i][j].getState(), 0, (int)PANEL_WIDTH, (int)PANEL_HEIGHT, false,false);
+						}
+					}
+				}
+			}
+		}
+
 		batch.draw(whitePixel, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
-		ArrayList<Integer> failOffsets = alphanumericHelper.stringToOffsets("ALMOST"); // CLOSE ENOUGH
-		int failOffset = (int)((CAMERA_WIDTH - SYMBOL_WIDTH * 1.5f * failOffsets.size()) / 2);
-
-		for(int i = 0; i < failOffsets.size(); i++) {
-			batch.draw(symbolsBigSprite,  failOffset + i * SYMBOL_BIG_WIDTH * 1.5f, (CAMERA_HEIGHT - SYMBOL_BIG_HEIGHT * 1.5f) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 1.5f, 1.5f, 0, (int)(failOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
+		if(skulls <= counterMap.get("fail_panels").getTopThreshold() / 3) {
+			drawText(bigSymbolsSprite, ALMOST_LABEL_X, ALMOST_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 1, ALMOST);
+		} else {
+			drawText(bigSymbolsSprite, CLOSE_LABEL_X, CLOSE_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 1, CLOSE);
+			drawText(bigSymbolsSprite, ENOUGH_LABEL_X, ENOUGH_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 1, ENOUGH);
 		}
 
 	}
 
 	public void renderSuccess() {
 
+		float pulse = 1;
+
+		if(counterMap.get("success").getCount() == counterMap.get("success").getBottomThreshold() ||
+				counterMap.get("success_panel_heart_pulse").getCount() >= counterMap.get("success_panel_heart_pulse").getBottomThreshold()) {
+			pulse = counterMap.get("success_panel_heart_pulse").step();
+		}
+
+		if(counterMap.get("success_panel_heart_pulse").getCount() >= counterMap.get("success_panel_heart_pulse").getBottomThreshold()) {
+
+			for (int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
+				for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
+					batch.draw(panelLifeSprite,
+							heartModels[i][j].getX() + (PANEL_LIFE_WIDTH - PANEL_LIFE_WIDTH * pulse) / 2,
+							heartModels[i][j].getY() + (PANEL_LIFE_HEIGHT - PANEL_LIFE_HEIGHT * pulse) / 2,
+							0, 0, PANEL_LIFE_WIDTH, PANEL_LIFE_HEIGHT, pulse, pulse, 0,
+							0, 0, (int) PANEL_LIFE_WIDTH, (int) PANEL_LIFE_HEIGHT, false, false);
+				}
+			}
+
+		} else {
+
+			pulse = counterMap.get("success_heart_pulse").step();
+			batch.draw(lifeSprite,  (CAMERA_WIDTH - LIFE_WIDTH * pulse) / 2, (CAMERA_HEIGHT - LIFE_HEIGHT * pulse) / 2, 0, 0, LIFE_WIDTH, LIFE_HEIGHT, pulse, pulse, 0, 0, 0, (int) LIFE_WIDTH, (int) LIFE_HEIGHT, false, false);
+
+		}
+
 		batch.draw(whitePixel, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
-		ArrayList<Integer> failOffsets = alphanumericHelper.stringToOffsets("NICE");
-		int failOffset = (int)((CAMERA_WIDTH - SYMBOL_BIG_WIDTH * failOffsets.size()) / 2);
-
-		for(int i = 0; i < failOffsets.size(); i++) {
-			batch.draw(symbolsBigSprite,  failOffset + i * SYMBOL_BIG_WIDTH, (CAMERA_HEIGHT - SYMBOL_BIG_HEIGHT) / 2, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 1, 1, 0, (int)(failOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-		}
+		drawText(bigSymbolsSprite, NICE_LABEL_X, NICE_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 1, NICE);
 
 	}
 
 	public void renderGameOver() {
 
-		batch.draw(whitePixel, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		batch.draw(backgroundSprite, BACKGROUND_1_X, BACKGROUND_1_Y);
+		batch.draw(backgroundSprite, BACKGROUND_2_X, BACKGROUND_2_Y);
+		batch.draw(backgroundSprite, BACKGROUND_3_X, BACKGROUND_3_Y);
+		batch.draw(backgroundSprite, BACKGROUND_4_X, BACKGROUND_4_Y);
 
-		ArrayList<Integer> failOffsets = alphanumericHelper.stringToOffsets("GAME OVER");
-		int failOffset = (int)((CAMERA_WIDTH - SYMBOL_BIG_WIDTH * 1.5f * failOffsets.size()) / 2);
+		batch.setColor(255, 255, 255, 0.8f);
+		drawText(bigSymbolsSprite, GAME_OVER_LABEL_X, GAME_OVER_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 1, GAME_OVER);
+		drawText(bigSymbolsSprite, LEVEL_REACHED_LABEL_X, LEVEL_REACHED_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 0.4f, LEVEL);
+		batch.setColor(Color.WHITE);
 
-		for(int i = 0; i < failOffsets.size(); i++) {
-			batch.draw(symbolsBigSprite,  failOffset + i * SYMBOL_WIDTH * 1.5f, (CAMERA_HEIGHT - SYMBOL_HEIGHT * 1.5f) / 2, 0, 0, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1.5f, 1.5f, 0, (int)(failOffsets.get(i) * SYMBOL_WIDTH), 0, (int)SYMBOL_WIDTH, (int)SYMBOL_HEIGHT, false, false);
-		}
+		batch.draw(bestSprite, GAME_OVER_LEVEL_X, GAME_OVER_LEVEL_Y);
+		drawText(symbolsSprite, GAME_OVER_LEVEL_X + (BEST_WIDTH - SYMBOL_WIDTH * Integer.toString(level).length()) / 2, GAME_OVER_LEVEL_Y + (BEST_HEIGHT - SYMBOL_HEIGHT) / 2, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, Integer.toString(level));
+		batch.draw(bestSprite, BEST_X, BEST_Y);
+		batch.draw(cupSprite, BEST_X + (BEST_WIDTH + CUP_WIDTH + UI_WIDTH_SPACE_3 - SYMBOL_WIDTH * Integer.toString(best).length()) / 2 - CUP_WIDTH - UI_WIDTH_SPACE_3, BEST_Y + (BEST_HEIGHT - CUP_HEIGHT) / 2);
+		drawText(symbolsSprite, BEST_X + (BEST_WIDTH + CUP_WIDTH + UI_WIDTH_SPACE_3 - SYMBOL_WIDTH * Integer.toString(best).length()) / 2, BEST_Y + (BEST_HEIGHT - SYMBOL_HEIGHT) / 2, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, Integer.toString(best));
+		batch.draw(playSprite, PLAY_X, PLAY_Y, 0, 0, PLAY_WIDTH, PLAY_HEIGHT, 1f, 1f, 0, 0, 0, (int)PLAY_WIDTH, (int)PLAY_HEIGHT, false, false);
+
+		renderSettings();
 
 	}
 
 	public void renderGame() {
 
-		batch.draw(backgroundSprite, BACKGROUND_1_X + mover, BACKGROUND_1_Y - mover);
-		batch.draw(backgroundSprite, BACKGROUND_2_X + mover, BACKGROUND_2_Y - mover);
-		batch.draw(backgroundSprite, BACKGROUND_3_X + mover, BACKGROUND_3_Y - mover);
-		batch.draw(backgroundSprite, BACKGROUND_4_X + mover, BACKGROUND_4_Y - mover);
+		batch.draw(backgroundSprite, BACKGROUND_1_X + counterMap.get("background").getCount(), BACKGROUND_1_Y - counterMap.get("background").getCount());
+		batch.draw(backgroundSprite, BACKGROUND_2_X + counterMap.get("background").getCount(), BACKGROUND_2_Y - counterMap.get("background").getCount());
+		batch.draw(backgroundSprite, BACKGROUND_3_X + counterMap.get("background").getCount(), BACKGROUND_3_Y - counterMap.get("background").getCount());
+		batch.draw(backgroundSprite, BACKGROUND_4_X + counterMap.get("background").getCount(), BACKGROUND_4_Y - counterMap.get("background").getCount());
 
 		batch.draw(pauseSprite, PAUSE_X, PAUSE_Y);
-		batch.setColor(255, 255, 255, 0.7f);
-		ArrayList<Integer> settingsOffsets = alphanumericHelper.stringToOffsets("PAUSE");
-		int settingsOffset = (int)(5);
-		for(int i = 0; i < settingsOffsets.size(); i++) {
-			batch.draw(symbolsBigSprite,  settingsOffset + i * SYMBOL_BIG_WIDTH * 0.4f, SETTINGS_Y - 25, 0, 0, SYMBOL_BIG_WIDTH, SYMBOL_HEIGHT, 0.4f, 0.4f, 0, (int)(settingsOffsets.get(i) * SYMBOL_BIG_WIDTH), 0, (int)SYMBOL_BIG_WIDTH, (int)SYMBOL_BIG_HEIGHT, false, false);
-		}
-		batch.setColor(255, 255, 255, 1f);
-
 		batch.draw(scoreSprite, SCORE_X, SCORE_Y);
 		batch.draw(cupSprite, GAME_CUP_X, GAME_CUP_Y);
-		ArrayList<Integer> levelOffsets = alphanumericHelper.stringToOffsets(Integer.toString(level));
-		int levelOffset = (int)(GAME_CUP_X + CUP_WIDTH  + ((SCORE_WIDTH - CUP_WIDTH) / 2 - SYMBOL_WIDTH * levelOffsets.size()) / 2);
-		for(int i = 0; i < levelOffsets.size(); i++) {
-			batch.draw(symbolsSprite,  levelOffset + i * SYMBOL_WIDTH, SCORE_Y + (SCORE_HEIGHT - SYMBOL_HEIGHT) / 2, 0, 0, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, 1, 0, (int)(levelOffsets.get(i) * SYMBOL_WIDTH), 0, (int)SYMBOL_WIDTH, (int)SYMBOL_HEIGHT, false, false);
-		}
-		ArrayList<Integer> bestOffsets = alphanumericHelper.stringToOffsets(Integer.toString(best));
-		int bestOffset = (int)(GAME_CUP_X - ((SCORE_WIDTH - CUP_WIDTH) / 2 + SYMBOL_WIDTH * bestOffsets.size()) / 2);
-		for(int i = 0; i < bestOffsets.size(); i++) {
-			batch.draw(symbolsSprite,  bestOffset + i * SYMBOL_WIDTH, SCORE_Y + (SCORE_HEIGHT - SYMBOL_HEIGHT) / 2, 0, 0, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, 1, 0, (int)(bestOffsets.get(i) * SYMBOL_WIDTH), 0, (int)SYMBOL_WIDTH, (int)SYMBOL_HEIGHT, false, false);
-		}
+		drawText(symbolsSprite, GAME_CUP_X - ((SCORE_WIDTH - CUP_WIDTH) / 2 + SYMBOL_WIDTH * Integer.toString(best).length()) / 2, SCORE_Y + (SCORE_HEIGHT - SYMBOL_HEIGHT) / 2, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, Integer.toString(best));
+		drawText(symbolsSprite, GAME_CUP_X + CUP_WIDTH  + ((SCORE_WIDTH - CUP_WIDTH) / 2 - SYMBOL_WIDTH * Integer.toString(level).length()) / 2, SCORE_Y + (SCORE_HEIGHT - SYMBOL_HEIGHT) / 2, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, Integer.toString(level));
+		batch.setColor(255, 255, 255, 0.9f);
+		drawText(bigSymbolsSprite, GAME_BEST_LABEL_X, GAME_BEST_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 0.4f, BEST);
+		drawText(bigSymbolsSprite, GAME_LEVEL_LABEL_X, GAME_LEVEL_LABEL_Y, BIG_SYMBOL_WIDTH, BIG_SYMBOL_HEIGHT, 0.4f, LEVEL);
+		batch.setColor(Color.WHITE);
 
 		batch.draw(triesSprite, TRIES_X, TRIES_Y);
-		ArrayList<Integer> triesOffsets = alphanumericHelper.stringToOffsets(Integer.toString(tries));
-		int triesOffset = (int)(TRIES_X + (TRIES_WIDTH - SYMBOL_WIDTH * 1f * triesOffsets.size()) / 2);
-		for(int i = 0; i < triesOffsets.size(); i++) {
-			batch.draw(symbolsSprite,  triesOffset + i * SYMBOL_WIDTH * 1f, TRIES_Y + (TRIES_HEIGHT - SYMBOL_HEIGHT) / 2, 0, 0, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, 1, 0, (int)(triesOffsets.get(i) * SYMBOL_WIDTH), 0, (int)SYMBOL_WIDTH, (int)SYMBOL_HEIGHT, false, false);
-		}
+		drawText(symbolsSprite, TRIES_X + (TRIES_WIDTH - SYMBOL_WIDTH * Integer.toString(tries).length()) / 2, TRIES_Y + (TRIES_HEIGHT - SYMBOL_HEIGHT) / 2, SYMBOL_WIDTH, SYMBOL_HEIGHT, 1, Integer.toString(tries));
 		if(lives > 0) {
 			batch.draw(lifeSprite, LIFE_1_X, LIFE_1_Y);
 		}
@@ -555,72 +681,36 @@ public class NoSkulls extends ApplicationAdapter {
 
 		for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
 			for(int j = 0; j < BOARD_WIDTH_COUNT; j++) {
-				batch.draw(panelsSprite, panelsTouchArea[i][j].x, panelsTouchArea[i][j].y, (int)PANEL_WIDTH * panelModels[i][j].getState(), 0, (int)PANEL_WIDTH, (int)PANEL_HEIGHT);
-				if(panelModels[i][j].isJustFlipped()) {
-					panelModels[i][j].setPrevState(panelModels[i][j].getState());
-					panelModels[i][j].changeState();
-					panelModels[i][j].setJustFlipped(false);
-				} else if(panelModels[i][j].getPrevState() < panelModels[i][j].getState()) {
-					panelModels[i][j].changeState();
-					if(panelModels[i][j].getState() == panelModels[i][j].getPrevState() + 16) {
-						flipping = false;
-						if(panelModels[i][j].getState() == 32) {
-							panelModels[i][j].setState(0);
-						}
-						panelModels[i][j].setPrevState(panelModels[i][j].getState());
+				if(state == State.FAIL) {
+					if(!panelModels[i][j].isActive()) {
+						continue;
 					}
 				}
+				batch.draw(panelsSprite, panelsTouchArea[i][j].x, panelsTouchArea[i][j].y, (int)PANEL_WIDTH * panelModels[i][j].getState(), 0, (int)PANEL_WIDTH, (int)PANEL_HEIGHT);
+				checkFlipping(panelModels[i][j]);
 			}
 		}
 
-		mover = mover + 0.9f;
-		if(mover > CAMERA_WIDTH) {
-			mover = 0;
-		}
+		counterMap.get("background").step();
 
 	}
 
 	public void checkWinCondition() {
 
-		boolean won = true;
 		if(!flipping) {
 
-			for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
-				for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
-					if(!panelModels[i][j].isActive()) {
-						won = false;
-						break;
-					}
-				}
-				if(!won) {
-					break;
-				}
-			}
+			boolean won = counterMap.get("fail_panels").getCount() == 0;
 
 			if(won) {
-				tries = ++prevTries;
-				level++;
-				if(level > best) {
-					best = level;
-				}
-				clearBoard();
-				prevMoves = createBoard(tries);
+				state = State.SUCCESS;
 			}
 
 			if(!won && tries == 0) {
-				lives--;
-				tries = prevTries;
-				clearBoard();
-				recreateBoard();
+				state = State.FAIL;
 			}
 
 			if(!won && lives == 0) {
-				level = 1;
-				tries = 2;
-				prevTries = 2;
-				lives = 3;
-				clearBoard();
-				prevMoves = createBoard(tries);
+				state = State.GAME_OVER;
 			}
 
 		}
@@ -635,8 +725,68 @@ public class NoSkulls extends ApplicationAdapter {
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touchPos);
 
-			if(state == State.MAIN_MENU) {
+			if(state == State.MAIN_MENU || state == State.PAUSE) {
 				if (playTouchArea.contains(touchPos.x, touchPos.y)) {
+				    playSound.play();
+					if (!settingsModel.isActive()) {
+						settingsModel.flip();
+						counterMap.get("settings").reset();
+					}
+					counterMap.get("background").unfreeze();
+					state = State.GAME;
+				} else if(settingsTouchArea.contains(touchPos.x, touchPos.y)) {
+					if(!settingsModel.isFlipping()) {
+                        flipSound.play();
+						settingsModel.setJustFlipped(true);
+						settingsModel.setActive(!settingsModel.isActive());
+					}
+				} else if(!settingsModel.isActive()) {
+					if(musicTouchArea.contains(touchPos.x, touchPos.y)) {
+						if(!musicModel.isFlipping()) {
+							musicModel.setJustFlipped(true);
+							musicModel.setActive(!musicModel.isActive());
+						}
+					} else if(soundTouchArea.contains(touchPos.x, touchPos.y)) {
+						if(!soundModel.isFlipping()) {
+							soundModel.setJustFlipped(true);
+							soundModel.setActive(!soundModel.isActive());
+						}
+					}
+				}
+			} else if(state == State.GAME) {
+				if(pauseTouchArea.contains(touchPos.x, touchPos.y)) {
+				    pauseSound.play();
+					counterMap.get("background").freeze();
+					state = State.PAUSE;
+				} else {
+					for (int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
+						for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
+							if (panelsTouchArea[i][j].contains(touchPos.x, touchPos.y)) {
+								if (!flipping) {
+									flipSound.play();
+									tries--;
+									flipping = true;
+									panelModels[i][j].setJustFlipped(true);
+									panelModels[i][j].setActive(!panelModels[i][j].isActive());
+									float count = panelModels[i][j].isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+									for (Panel panel : panelModels[i][j].getNeighbours()) {
+										panel.setJustFlipped(true);
+										panel.setActive(!panel.isActive());
+										count = panel.isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+									}
+								}
+							}
+						}
+					}
+				}
+			} else if(state == State.GAME_OVER) {
+				if(playTouchArea.contains(touchPos.x, touchPos.y)) {
+					level = 1;
+					tries = 1;
+					prevTries = 1;
+					lives = 3;
+					clearBoard();
+					prevMoves = createBoard(tries);
 					state = State.GAME;
 				} else if(settingsTouchArea.contains(touchPos.x, touchPos.y)) {
 					if(!settingsModel.isFlipping()) {
@@ -656,27 +806,6 @@ public class NoSkulls extends ApplicationAdapter {
 						}
 					}
 				}
-			} else if(state == State.GAME) {
-				if(pauseTouchArea.contains(touchPos.x, touchPos.y)) {
-					state = State.MAIN_MENU;
-				} else {
-					for (int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
-						for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
-							if (panelsTouchArea[i][j].contains(touchPos.x, touchPos.y)) {
-								if (!flipping) {
-									tries--;
-									flipping = true;
-									panelModels[i][j].setJustFlipped(true);
-									panelModels[i][j].setActive(!panelModels[i][j].isActive());
-									for (Panel panel : panelModels[i][j].getNeighbours()) {
-										panel.setJustFlipped(true);
-										panel.setActive(!panel.isActive());
-									}
-								}
-							}
-						}
-					}
-				}
 			}
 
 		}
@@ -684,28 +813,72 @@ public class NoSkulls extends ApplicationAdapter {
 	}
 
 	@Override
-	public void render () {
+	public void render() {
 
 		startRender();
 
-		if(state == State.MAIN_MENU) {
+		if (state == State.MAIN_MENU) {
 			renderMainMenu();
-			//renderSuccess();
-		} else if(state == State.GAME) {
+		} else if (state == State.GAME) {
 			renderGame();
-			//renderFail();
+			checkWinCondition();
+		} else if(state == State.PAUSE) {
+			renderMainMenu();
+			renderPause();
+		} else if(state == State.SUCCESS) {
+			if(counterMap.get("success").getCount() == counterMap.get("success").getBottomThreshold()) {
+				successSound.play();
+			}
+			renderGame();
+			renderSuccess();
+			if(counterMap.get("success").step() == counterMap.get("success").getTopThreshold()) {
+				counterMap.get("success").reset();
+				counterMap.get("success_panel_heart_pulse").reset();
+				counterMap.get("success_heart_pulse").reset();
+				counterMap.get("fail_panels").reset();
+				lives = 3;
+				tries = (int) Math.ceil(prevTries / 2 + (0.1 * level) + 1);
+				prevTries = tries;
+				level++;
+				if(level > best) {
+					best = level;
+				}
+				clearBoard();
+				prevMoves = createBoard(tries);
+				state = State.GAME;
+			}
+		} else if(state == State.FAIL) {
+			if(counterMap.get("fail").getCount() == counterMap.get("fail").getBottomThreshold()) {
+				failSound.play();
+				skulls = (int) counterMap.get("fail_panels").getCount();
+			}
+			renderGame();
+			renderFail();
+			if(counterMap.get("fail").step() == counterMap.get("fail").getTopThreshold()) {
+				counterMap.get("fail").reset();
+				counterMap.get("fail_panel_pulse").reset();
+				counterMap.get("fail_panel_pulse_count").reset();
+				lives--;
+				tries = prevTries;
+				reset = false;
+				state = State.GAME;
+			}
+		} else if(state == State.GAME_OVER) {
+			if(counterMap.get("fail_panels").getCount() != 0) {
+				gameOverSound.play();
+			}
+			counterMap.get("fail_panels").reset();
+			renderGameOver();
 		}
 
 		checkTouch();
-
-		checkWinCondition();
 
 		endRender();
 
 	}
 
 	@Override
-	public void dispose () {
+	public void dispose() {
 		batch.dispose();
 		backgroundSprite.dispose();
 		playSprite.dispose();

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import polygonull.noskulls.NoSkulls;
 
-public class SkullAndHeartPanel extends Panel {
+public class SkullAndHeartPanel extends Panel implements Cloneable {
 
     private int x;
     private int y;
-    private ArrayList<Panel> neighbours = new ArrayList<Panel>();
+    private ArrayList<SkullAndHeartPanel> neighbours = new ArrayList<>();
 
     public SkullAndHeartPanel(int x, int y) {
         super();
@@ -32,7 +32,7 @@ public class SkullAndHeartPanel extends Panel {
         this.y = y;
     }
 
-    public ArrayList<Panel> getNeighbours() {
+    public ArrayList<SkullAndHeartPanel> getNeighbours() {
         return neighbours;
     }
 

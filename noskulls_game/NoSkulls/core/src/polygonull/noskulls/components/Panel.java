@@ -56,4 +56,10 @@ public class Panel {
 
     public boolean isFlipping() { return this.justFlipped || (this.state != 0 && this.state != 16); }
 
+    public void flip() {
+        active = !active;
+        state = active ? 16 : 0;
+        prevState = active ? 16 : 0;
+    }
+
 }
