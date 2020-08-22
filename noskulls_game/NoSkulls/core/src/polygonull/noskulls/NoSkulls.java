@@ -3,7 +3,6 @@ package polygonull.noskulls;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import polygonull.noskulls.components.Counter;
@@ -22,6 +22,7 @@ import polygonull.noskulls.components.Panel;
 import polygonull.noskulls.components.SkullAndHeartPanel;
 import polygonull.noskulls.helpers.AlphanumericHelper;
 import polygonull.noskulls.helpers.State;
+import polygonull.noskulls.components.Sound;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 
@@ -194,13 +195,16 @@ public class NoSkulls extends ApplicationAdapter {
 
 	// Game state
 	private State state = State.MAIN_MENU;
-	private int level = 1;
-	private int best = 1;
+	private int level = 0;
+	private int best = 0;
 	private int round = 1;
 	private int prevTries = 1;
 	private int tries = 1;
 	private int lives = 3;
 	private int skulls = 0;
+	private boolean flipping = false;
+	private boolean reset = false;
+	private boolean resetFlip = false;
 
 	private AlphanumericHelper alphanumericHelper;
 
@@ -249,9 +253,6 @@ public class NoSkulls extends ApplicationAdapter {
 
 	private IntegerPair[][] heartCoordinates;
 
-	private boolean flipping = false;
-	private boolean reset = false;
-
 	private HashMap<String, Counter> counterMap;
 
 	// Sounds
@@ -276,13 +277,14 @@ public class NoSkulls extends ApplicationAdapter {
 
 		save = Gdx.app.getPreferences("no_skulls_save");
 
-		level = save.getInteger("level", 1);
-		best = save.getInteger("best", 1);
+		level = save.getInteger("level", 0);
+		best = save.getInteger("best", 0);
 		round = save.getInteger("round", 1);
 		prevTries = save.getInteger("prevTries", 1);
 		tries = save.getInteger("tries", 1);
 		lives = save.getInteger("lives", 3);
 		state = State.valueOf(save.getString("state", State.MAIN_MENU.name()));
+
 		String panelModelsJson = save.getString("panels", "");
 		String prevPanelModelsJson = save.getString("prevPanels", "");
 		if(panelModelsJson.isEmpty() || prevPanelModelsJson.isEmpty()) {
@@ -291,8 +293,17 @@ public class NoSkulls extends ApplicationAdapter {
 			recreateBoard(panelModelsJson, prevPanelModelsJson);
 		}
 
+		if(!save.getBoolean("music", true)) {
+			musicModel.flip();
+		}
+
+		if(!save.getBoolean("sound", true)) {
+			soundModel.flip();
+		}
+
 		switch (state) {
 			case MAIN_MENU:
+			case PAUSE:
 				break;
 			case GAME:
 
@@ -337,8 +348,6 @@ public class NoSkulls extends ApplicationAdapter {
 				}
 
 				break;
-			case PAUSE:
-				break;
 			case FAIL:
 				lives--;
 				tries = prevTries;
@@ -376,19 +385,30 @@ public class NoSkulls extends ApplicationAdapter {
 				break;
 		}
 
+		save.putInteger("level", level);
+		save.putInteger("best", best);
+		save.putInteger("round", round);
+		save.putInteger("prevTries", prevTries);
+		save.putInteger("tries", tries);
+		save.putInteger("lives", lives);
+		save.putString("panels", boardToString(panelModels));
+		save.putString("prevPanels", boardToString(prevPanelModels));
+		save.putString("state", state.name());
+		save.flush();
+
 	}
 
 	private String boardToString(SkullAndHeartPanel[][] panelsAsModels) {
 
-		String boardToString = "";
+		StringBuilder boardToString = new StringBuilder();
 
 		for(int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
 			for(int j = 0; j < BOARD_WIDTH_COUNT; j++) {
-				boardToString = boardToString + (panelsAsModels[i][j].isActive() ? 1 : 0);
+				boardToString.append(panelsAsModels[i][j].isActive() ? 1 : 0);
 			}
 		}
 
-		return boardToString;
+		return boardToString.toString();
 
 	}
 
@@ -439,20 +459,49 @@ public class NoSkulls extends ApplicationAdapter {
 
 	private void createBoard(int tries) {
 
-		while(tries != 0) {
-			int i = random.nextInt(BOARD_HEIGHT_COUNT);
-			int j = random.nextInt(BOARD_WIDTH_COUNT);
-			panelModels[i][j].flip();
-			float count = panelModels[i][j].isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
-			for (SkullAndHeartPanel panel : panelModels[i][j].getNeighbours()) {
-				panel.flip();
-				count = panel.isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+		int initTries = tries;
+		while(counterMap.get("fail_panels").getCount() == 0) {
+
+			ArrayList<IntegerPair> moves = new ArrayList<IntegerPair>(Arrays.asList(
+					new IntegerPair(0, 0), new IntegerPair(0, 1), new IntegerPair(0, 2), new IntegerPair(0, 3), new IntegerPair(0, 4), new IntegerPair(0, 5),
+					new IntegerPair(1, 0), new IntegerPair(1, 1), new IntegerPair(1, 2), new IntegerPair(1, 3), new IntegerPair(1, 4), new IntegerPair(1, 5),
+					new IntegerPair(2, 0), new IntegerPair(2, 1), new IntegerPair(2, 2), new IntegerPair(2, 3), new IntegerPair(2, 4), new IntegerPair(2, 5),
+					new IntegerPair(3, 0), new IntegerPair(3, 1), new IntegerPair(3, 2), new IntegerPair(3, 3), new IntegerPair(3, 4), new IntegerPair(3, 5),
+					new IntegerPair(4, 0), new IntegerPair(4, 1), new IntegerPair(4, 2), new IntegerPair(4, 3), new IntegerPair(4, 4), new IntegerPair(4, 5),
+					new IntegerPair(5, 0), new IntegerPair(5, 1), new IntegerPair(5, 2), new IntegerPair(5, 3), new IntegerPair(5, 4), new IntegerPair(5, 5)
+			));
+
+			while (tries != 0) {
+				int moveIndex = random.nextInt(moves.size() - 1);
+				IntegerPair move = moves.get(moveIndex);
+				int i = move.getI();
+				int j = move.getJ();
+				panelModels[i][j].flip();
+				float count = panelModels[i][j].isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+				for (SkullAndHeartPanel panel : panelModels[i][j].getNeighbours()) {
+					panel.flip();
+					count = panel.isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+				}
+				prevPanelModels[i][j].flip();
+				for (SkullAndHeartPanel panel : prevPanelModels[i][j].getNeighbours()) {
+					panel.flip();
+				}
+				tries--;
+				moves.remove(moveIndex);
+				if (moves.size() == 0) {
+					moves = new ArrayList<IntegerPair>(Arrays.asList(
+							new IntegerPair(0, 0), new IntegerPair(0, 1), new IntegerPair(0, 2), new IntegerPair(0, 3), new IntegerPair(0, 4), new IntegerPair(0, 5),
+							new IntegerPair(1, 0), new IntegerPair(1, 1), new IntegerPair(1, 2), new IntegerPair(1, 3), new IntegerPair(1, 4), new IntegerPair(1, 5),
+							new IntegerPair(2, 0), new IntegerPair(2, 1), new IntegerPair(2, 2), new IntegerPair(2, 3), new IntegerPair(2, 4), new IntegerPair(2, 5),
+							new IntegerPair(3, 0), new IntegerPair(3, 1), new IntegerPair(3, 2), new IntegerPair(3, 3), new IntegerPair(3, 4), new IntegerPair(3, 5),
+							new IntegerPair(4, 0), new IntegerPair(4, 1), new IntegerPair(4, 2), new IntegerPair(4, 3), new IntegerPair(4, 4), new IntegerPair(4, 5),
+							new IntegerPair(5, 0), new IntegerPair(5, 1), new IntegerPair(5, 2), new IntegerPair(5, 3), new IntegerPair(5, 4), new IntegerPair(5, 5)
+					));
+				}
 			}
-			prevPanelModels[i][j].flip();
-			for (SkullAndHeartPanel panel : prevPanelModels[i][j].getNeighbours()) {
-				panel.flip();
-			}
-			tries--;
+
+			tries = initTries;
+
 		}
 
 	}
@@ -466,6 +515,7 @@ public class NoSkulls extends ApplicationAdapter {
 					panelModels[i][j].setActive(!panelModels[i][j].isActive());
 					flipping = true;
 					float count = panelModels[i][j].isActive() ? counterMap.get("fail_panels").stepDown() : counterMap.get("fail_panels").step();
+					resetFlip = true;
 				}
 			}
 		}
@@ -505,13 +555,13 @@ public class NoSkulls extends ApplicationAdapter {
 	@Override
 	public void create() {
 
-		flipSound = Gdx.audio.newSound(Gdx.files.internal("flip.mp3"));
-		resetSound = Gdx.audio.newSound(Gdx.files.internal("reset.mp3"));
-        playSound = Gdx.audio.newSound(Gdx.files.internal("play.ogg"));
-		pauseSound = Gdx.audio.newSound(Gdx.files.internal("pause.ogg"));
-		gameOverSound = Gdx.audio.newSound(Gdx.files.internal("game_over.ogg"));
-		successSound = Gdx.audio.newSound(Gdx.files.internal("success.ogg"));
-		failSound = Gdx.audio.newSound(Gdx.files.internal("fail.ogg"));
+		flipSound = new Sound("flip.mp3");
+		resetSound = new Sound("reset.mp3");
+        playSound = new Sound("play.ogg");
+		pauseSound = new Sound("pause.ogg");
+		gameOverSound = new Sound("game_over.ogg");
+		successSound = new Sound("success.ogg");
+		failSound = new Sound("fail.ogg");
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -698,8 +748,11 @@ public class NoSkulls extends ApplicationAdapter {
 		} else {
 			if(lives - 1 != 0 && Math.abs(counterMap.get("fail_panel_pulse").getCount() - counterMap.get("fail_panel_pulse").getInitialCount()) < 0.0001) {
 				if(!reset) {
-					resetSound.play();
 					resetBoard();
+					if(resetFlip) {
+						resetSound.play(soundModel.isActive());
+					}
+					resetFlip = false;
 					reset = true;
 				}
 				for (int i = 0; i < BOARD_HEIGHT_COUNT; i++) {
@@ -868,7 +921,7 @@ public class NoSkulls extends ApplicationAdapter {
 
 			if(state == State.MAIN_MENU || state == State.PAUSE) {
 				if (playTouchArea.contains(touchPos.x, touchPos.y)) {
-				    playSound.play();
+				    playSound.play(soundModel.isActive());
 					if (!settingsModel.isActive()) {
 						settingsModel.flip();
 						counterMap.get("settings").reset();
@@ -876,19 +929,11 @@ public class NoSkulls extends ApplicationAdapter {
 					counterMap.get("background").unfreeze();
 					state = State.GAME;
 
-					save.putInteger("level", level);
-					save.putInteger("best", best);
-					save.putInteger("round", round);
-					save.putInteger("prevTries", prevTries);
-					save.putInteger("tries", tries);
-					save.putInteger("lives", lives);
-					save.putString("panels", boardToString(panelModels));
-					save.putString("prevPanels", boardToString(prevPanelModels));
 					save.putString("state", state.name());
 					save.flush();
 				} else if(settingsTouchArea.contains(touchPos.x, touchPos.y)) {
 					if(!settingsModel.isFlipping()) {
-                        flipSound.play();
+                        flipSound.play(soundModel.isActive());
 						settingsModel.setJustFlipped(true);
 						settingsModel.setActive(!settingsModel.isActive());
 					}
@@ -897,30 +942,28 @@ public class NoSkulls extends ApplicationAdapter {
 						if(!musicModel.isFlipping()) {
 							musicModel.setJustFlipped(true);
 							musicModel.setActive(!musicModel.isActive());
+							flipSound.play(soundModel.isActive());
 
 							save.putBoolean("music", musicModel.isActive());
+							save.flush();
 						}
 					} else if(soundTouchArea.contains(touchPos.x, touchPos.y)) {
 						if(!soundModel.isFlipping()) {
 							soundModel.setJustFlipped(true);
 							soundModel.setActive(!soundModel.isActive());
+							flipSound.play(soundModel.isActive());
 
 							save.putBoolean("sound", soundModel.isActive());
+							save.flush();
 						}
 					}
 				}
 			} else if(state == State.GAME) {
 				if(pauseTouchArea.contains(touchPos.x, touchPos.y)) {
-				    pauseSound.play();
+				    pauseSound.play(soundModel.isActive());
 					counterMap.get("background").freeze();
 					state = State.PAUSE;
 
-					save.putInteger("level", level);
-					save.putInteger("best", best);
-					save.putInteger("round", round);
-					save.putInteger("prevTries", prevTries);
-					save.putInteger("tries", tries);
-					save.putInteger("lives", lives);
 					save.putString("state", state.name());
 					save.flush();
 				} else {
@@ -928,7 +971,7 @@ public class NoSkulls extends ApplicationAdapter {
 						for (int j = 0; j < BOARD_WIDTH_COUNT; j++) {
 							if (panelsTouchArea[i][j].contains(touchPos.x, touchPos.y)) {
 								if (!flipping) {
-									flipSound.play();
+									flipSound.play(soundModel.isActive());
 									tries--;
 									flipping = true;
 									panelModels[i][j].setJustFlipped(true);
@@ -951,9 +994,8 @@ public class NoSkulls extends ApplicationAdapter {
 				}
 			} else if(state == State.GAME_OVER) {
 				if(playTouchArea.contains(touchPos.x, touchPos.y)) {
-					playSound.play();
-
-					level = 1;
+					playSound.play(soundModel.isActive());
+					level = 0;
 					round = 1;
 					tries = 1;
 					prevTries = 1;
@@ -973,26 +1015,30 @@ public class NoSkulls extends ApplicationAdapter {
 					save.flush();
 				} else if(settingsTouchArea.contains(touchPos.x, touchPos.y)) {
 					if(!settingsModel.isFlipping()) {
-						flipSound.play();
+						flipSound.play(soundModel.isActive());
 						settingsModel.setJustFlipped(true);
 						settingsModel.setActive(!settingsModel.isActive());
 					}
 				} else if(!settingsModel.isActive()) {
 					if(musicTouchArea.contains(touchPos.x, touchPos.y)) {
 						if(!musicModel.isFlipping()) {
-							flipSound.play();
+							flipSound.play(soundModel.isActive());
 							musicModel.setJustFlipped(true);
 							musicModel.setActive(!musicModel.isActive());
+							flipSound.play(soundModel.isActive());
 
 							save.putBoolean("music", musicModel.isActive());
+							save.flush();
 						}
 					} else if(soundTouchArea.contains(touchPos.x, touchPos.y)) {
 						if(!soundModel.isFlipping()) {
-							flipSound.play();
+							flipSound.play(soundModel.isActive());
 							soundModel.setJustFlipped(true);
 							soundModel.setActive(!soundModel.isActive());
+							flipSound.play(soundModel.isActive());
 
 							save.putBoolean("sound", soundModel.isActive());
+							save.flush();
 						}
 					}
 				}
@@ -1017,7 +1063,7 @@ public class NoSkulls extends ApplicationAdapter {
 			renderPause();
 		} else if(state == State.SUCCESS) {
 			if(counterMap.get("success").getCount() == counterMap.get("success").getBottomThreshold()) {
-				successSound.play();
+				successSound.play(soundModel.isActive());
 			}
 			renderGame();
 			renderSuccess();
@@ -1025,7 +1071,6 @@ public class NoSkulls extends ApplicationAdapter {
 				counterMap.get("success").reset();
 				counterMap.get("success_panel_heart_pulse").reset();
 				counterMap.get("success_heart_pulse").reset();
-				counterMap.get("fail_panels").reset();
 				level++;
 				round++;
 				if(level > best) {
@@ -1056,7 +1101,7 @@ public class NoSkulls extends ApplicationAdapter {
 			}
 		} else if(state == State.FAIL) {
 			if(counterMap.get("fail").getCount() == counterMap.get("fail").getBottomThreshold()) {
-				failSound.play();
+				failSound.play(soundModel.isActive());
 				skulls = (int) counterMap.get("fail_panels").getCount();
 			}
 			renderGame();
@@ -1070,14 +1115,14 @@ public class NoSkulls extends ApplicationAdapter {
 				reset = false;
 				state = State.GAME;
 
-				save.putInteger("tries", tries);
 				save.putInteger("lives", lives);
+				save.putInteger("tries", tries);
 				save.putString("state", state.name());
 				save.flush();
 			}
 		} else if(state == State.GAME_OVER) {
 			if(counterMap.get("fail_panels").getCount() != counterMap.get("fail_panels").getBottomThreshold()) {
-				gameOverSound.play();
+				gameOverSound.play(soundModel.isActive());
 				counterMap.get("fail_panels").reset();
 			}
 			renderGameOver();
