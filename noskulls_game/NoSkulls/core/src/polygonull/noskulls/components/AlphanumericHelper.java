@@ -1,4 +1,4 @@
-package polygonull.noskulls.helpers;
+package polygonull.noskulls.components;
 
 import java.util.ArrayList;
 
