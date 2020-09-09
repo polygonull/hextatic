@@ -5,6 +5,10 @@ var startAll = function () {
         this.removeAttribute("id");
     });
 
+    window.addEventListener('scroll', function() {
+        document.getElementById("null-next-game").style.opacity = 1 - window.pageYOffset / (4 * document.getElementById("null-next-game").offsetHeight);
+    });
+
     particlesJS("null-particles",
         {
             "particles": {
