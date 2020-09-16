@@ -119,12 +119,8 @@ body {
 
 /* makes the inner path equal with the back button which is about 33px */
 
-.sound {
+.sound, .privacy {
 	height: 44px;
-}
-
-.privacy {
-	height: 40px;
 }
 
 #sound-off {
