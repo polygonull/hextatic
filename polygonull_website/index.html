@@ -8,6 +8,7 @@
 	<link rel="icon" href="images/polygonull-48x48.png" sizes="48x48">
 	<link rel="apple-touch-icon" href="images/polygonull-192x192.png" sizes="192x192">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Play&display=swap">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/css/uikit.min.css">
 	<link rel="stylesheet" href="styles/main.css">
 	<script src="https://cdn.jsdelivr.net/npm/uikit@3.4.2/dist/js/uikit.min.js"></script>
@@ -28,19 +29,19 @@
 			</div>
 		</nav>
 	</div>
-	<div class="uk-section uk-section-small uk-flex uk-flex-middle uk-text-center"
+	<div id="null-section0" class="uk-section uk-section-small uk-flex uk-flex-middle uk-text-center"
 		uk-height-viewport="offset-top: true; offset-bottom: true">
 		<div class="uk-width-1-1">
 			<div class="uk-container">
 				<div class="uk-child-width-expand@m uk-grid-small" uk-grid uk-height-match="target: > div > .uk-card">
 					<div>
-						<div class="uk-card uk-card-body uk-flex uk-flex-middle uk-flex-center null-transparent">
+						<div id="null-noskulls-card" class="uk-card uk-card-body uk-flex uk-flex-middle uk-flex-center null-transparent null-blackonwhite">
 							<div>
-								<div>
-									<img data-src="images/hextatic_name.svg" width="180" alt="" uk-svg>
+								<div id="null-noskulls">
+									NO SKULLS!
 								</div>
 								<div class="null-app-icon-space">
-									<img data-src="images/hextatic.svg" width="240" alt="" uk-svg>
+									<img data-src="images/noskulls.png" width="180" alt="" uk-img>
 								</div>
 								<div>
 									<a class="uk-link-reset" href="//play.google.com/store/apps/details?id=polygonull.hextatic">
@@ -54,10 +55,67 @@
 						<div class="uk-card uk-flex uk-flex-column null-blackonwhite">
 							<div class="uk-card-body uk-text-left uk-flex-auto">
 								<p>
+									A colorful pixelated puzzle game made to challenge you. <br>
+									The goal is simple, you have to clear the board of skulls. <br>
+									You can touch any panel on the board to flip it (and it's neighboring panels), 
+									but be careful you have a limited number of available moves for each level.
+								</p>
+								<p>
+									How far can you go?
+								</p>
+							</div>
+							<div class="uk-card-footer">
+								<div class="uk-child-width-expand@s uk-text-center">
+									<div>
+										<a class="uk-button uk-width-1-1 uk-link-reset null-play-now null-blackonwhite null-rectangle"
+											href="//noskulls.polygonull.com">PLAY NOW</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="uk-section-xsmall uk-visible@s">
+		<div class="uk-container uk-container-expand uk-text-center">
+			<div uk-margin="" class="uk-flex-inline uk-flex-center uk-flex-wrap">
+				<a href="#null-section1" uk-scroll>
+					<span id="null-next-game" uk-icon="icon: chevron-down; ratio: 2" class="uk-icon"></span>
+				</a>
+			</div>
+		</div>
+	</div>
+	<div id="null-section1" class="uk-section uk-section-small uk-flex uk-flex-middle uk-text-center"
+		uk-height-viewport="offset-top: true; offset-bottom: true">
+		<div class="uk-width-1-1">
+			<div class="uk-container">
+				<div class="uk-child-width-expand@m uk-grid-small" uk-grid uk-height-match="target: > div > .uk-card">
+					<div>
+						<div class="uk-card uk-card-body uk-flex uk-flex-middle uk-flex-center null-transparent null-blackonwhite">
+							<div>
+								<div>
+									<img data-src="images/hextatic_name.svg" width="180" alt="" uk-svg>
+								</div>
+								<div class="null-app-icon-space">
+									<img data-src="images/hextatic.svg" width="240" alt="" uk-svg>
+								</div>
+								<div>
+									<a class="uk-link-reset" href="//play.google.com/store/apps/details?id=polygonull.noskulls">
+										<img data-src="images/google-play-badge.png" width="180" alt="" uk-img>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div>
+						<div class="uk-card uk-flex uk-flex-column null-blackonwhite">
+							<div class="uk-card-body uk-text-left uk-flex-auto">
+								<p>
 									A hexagon puzzle game about a hexagon in a hexagon shaped grid that will have to
-									utilize special hexagon based algorithms
-									and sofisticated hexagon strategies to achieve it's only purpose of reaching its
-									hexagon shaped goals.
+									utilize special hexagon based algorithms and sofisticated hexagon strategies 
+									to achieve it's only purpose of reaching its hexagon shaped goals.
 								</p>
 								<p>
 									Your goal is to stop it.
@@ -74,47 +132,6 @@
 										<a class="uk-button uk-width-1-1 uk-link-reset null-view-on-github null-blackonwhite null-rectangle"
 											href="//github.com/polygonull/hextatic">VIEW ON GITHUB</a>
 									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="uk-section-xsmall uk-visible@s">
-		<div class="uk-container uk-container-expand uk-text-center">
-			<div uk-margin="" class="uk-flex-inline uk-flex-center uk-flex-wrap">
-				<a href="#section1" uk-scroll>
-					<span id="null-next-game" uk-icon="icon: chevron-down; ratio: 2" class="uk-icon"></span>
-				</a>
-			</div>
-		</div>
-	</div>
-	<div id="section1" class="uk-section uk-section-small uk-flex uk-flex-middle uk-text-center"
-		uk-height-viewport="offset-top: true; offset-bottom: true">
-		<div class="uk-width-1-1">
-			<div class="uk-container">
-				<div class="uk-child-width-expand@m uk-grid-small" uk-grid uk-height-match="target: > div > .uk-card">
-					<div>
-						<div class="uk-card uk-card-body uk-flex uk-flex-middle uk-flex-center null-transparent">
-							<div>
-								<div class="null-app-icon-space">
-									<img data-src="images/noskulls.png" width="240" alt="" uk-img>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div>
-						<div class="uk-card uk-flex uk-flex-column null-blackonwhite">
-							<div class="uk-card-body uk-text-left uk-flex-auto">
-								<p>
-									Coming soon.
-								</p>
-							</div>
-							<div class="uk-card-footer">
-								<div class="uk-child-width-expand@s uk-text-center"
-									uk-grid="margin: null-view-on-github-margin">
 								</div>
 							</div>
 						</div>

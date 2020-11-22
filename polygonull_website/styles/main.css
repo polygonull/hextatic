@@ -60,3 +60,14 @@
 #null-email-wrapper {
     cursor: pointer;
 }
+
+#null-noskulls {
+    font-family: 'Titan One', cursive;
+    color: white;
+    text-shadow: 2px 1px black;
+    font-size: 30px;
+}
+
+#null-noskulls-card {
+    background-image: url("/images/noskulls_background.png");
+}
