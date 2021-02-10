@@ -117,13 +117,18 @@ body {
     width: 50px;
 }
 
-/* makes the inner path equal with the back button which is about 33px */
+/* 
+ * makes the inner path equal with the back button which is about 33px 
+ * and align the icons
+ */
 
 .sound {
 	height: 44px;
+	margin-top: 3px;
 }
 
 .privacy {
+	margin-top: 5px;
 	height: 40px;
 }
 
